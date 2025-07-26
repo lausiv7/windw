@@ -7,7 +7,11 @@ if lsof -t -i:9003; then
   kill -9 $(lsof -t -i:9003)
 fi
 
-# Code-Server 백그라운드 실행
+# Next.js 개발 서버를 백그라운드에서 실행
+npm run dev &
+NEXT_PID=$!
+
+# Code-Server를 포그라운드에서 실행
 # --auth none: 비밀번호 없이 접속 허용
 ~/.local/bin/code-server --bind-addr 0.0.0.0:8080 \
            --user-data-dir ~/.local/share/code-server \
@@ -18,9 +22,6 @@ fi
 
 CODE_SERVER_PID=$!
 
-# Next.js 개발 서버 실행 (포트 9003)
-npm run dev &
-NEXT_PID=$!
 
 echo "✅ WindWalker 시작 완료!"
 echo "🌐 VS Code IDE: http://localhost:8080"
