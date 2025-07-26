@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # Code-Server (VS Code Web)
+  code-server:
+    image: codercom/code-server:latest
+    container_name: windwalker-ide
+    ports:
+      - "8080:8080"
+    volumes:
+      # 워크스페이스 (사용자 프로젝트)
+      - ./workspace:/home/coder/workspace
+      # VS Code 확장 및 설정
+      - ./extensions:/home/coder/.local/share/code-server/extensions
+      - ./vscode-config:/home/coder/.local/share/code-server/User
+      # Docker 소켓 (컨테이너 내에서 Docker 사용)
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - PASSWORD=windwalker2024
+      - DOCKER_USER=coder
+    user: "1000:1000"
+    restart: unless-stopped
+    command: >
+      --bind-addr 0.0.0.0:8080
+      --user-data-dir /home/coder/.local/share/code-server
+      --extensions-dir /home/coder/.local/share/code-server/extensions
+      --disable-telemetry
+      /home/coder/workspace
+
+  # 개발용 프리뷰 서버 (나중에 사용)
+  preview-server:
+    image: nginx:alpine
+    container_name: windwalker-preview  
+    ports:
+      - "3000:80"
+    volumes:
+      - ./workspace/dist:/usr/share/nginx/html
+    restart: unless-stopped
+    depends_on:
+      - code-server
+
+  # 향후 RAG API 서버 (Phase 3에서 활성화)
+  # api-server:
+  #   build: ./api-server
+  #   container_name: windwalker-api
+  #   ports:
+  #     - "3001:3001"
+  #   environment:
+  #     - NODE_ENV=development
+  #   restart: unless-stopped
+
+volumes:
+  workspace_data:
+  extensions_data:
