@@ -5,7 +5,7 @@ export default function Home() {
         <h1 style={{ color: 'white', margin: 0 }}>WindWalker IDE</h1>
       </header>
       <iframe
-        src="http://localhost:8080"
+        src="/ide/"
         style={{ flex: 1, border: 'none' }}
         title="code-server"
       />
