@@ -7,8 +7,7 @@ if lsof -t -i:9003; then
   kill -9 $(lsof -t -i:9003)
 fi
 
-# Code-Server 백그라운드 실행
-# --auth none: 비밀번호 없이 접속 허용
+# Code-Server를 백그라운드에서 실행하고 로그를 파일에 기록
 ~/.local/bin/code-server --bind-addr 0.0.0.0:8080 \
            --user-data-dir ~/.local/share/code-server \
            --extensions-dir ~/.local/share/code-server/extensions \
@@ -19,7 +18,7 @@ fi
 
 CODE_SERVER_PID=$!
 
-# Next.js 개발 서버 실행 (포트 9003)
+# Next.js 개발 서버 실행
 npm run dev &
 NEXT_PID=$!
 
