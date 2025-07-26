@@ -1,17 +1,14 @@
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-
 export default function Home() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground">
-      <div className="text-center space-y-4">
-        <h1 className="text-5xl font-bold font-headline">WindWalker IDE</h1>
-        <p className="text-muted-foreground text-lg">AI-powered web development environment</p>
-        <div className="w-full h-px bg-border my-8"></div>
-        <Link href="/ide">
-          <Button>Launch IDE</Button>
-        </Link>
-      </div>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      <header style={{ padding: '1rem', backgroundColor: '#222' }}>
+        <h1 style={{ color: 'white', margin: 0 }}>WindWalker IDE</h1>
+      </header>
+      <iframe
+        src="http://localhost:8080"
+        style={{ flex: 1, border: 'none' }}
+        title="code-server"
+      />
     </div>
   )
 }
