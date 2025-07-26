@@ -4,7 +4,7 @@
 echo "🔥 Firebase Studio용 WindWalker 설정 시작..."
 
 # 1. Code-Server 설치 (이미 설치되어 있다면 건너뜀)
-if ! command -v code-server &> /dev/null
+if ! command -v ~/.local/bin/code-server &> /dev/null
 then
     echo "📦 Code-Server 설치..."
     curl -fsSL https://code-server.dev/install.sh | sh
@@ -29,7 +29,6 @@ echo "🔌 VS Code 확장 설치..."
 ~/.local/bin/code-server --install-extension ms-vscode.vscode-typescript-next --force
 ~/.local/bin/code-server --install-extension esbenp.prettier-vscode --force
 ~/.local/bin/code-server --install-extension bradlc.vscode-tailwindcss --force
-~/.local/bin/code-server --install-extension ms-vscode.vscode-json --force
 
 # 5. 시작 스크립트 생성
 cat > ./start-windwalker.sh << 'EOF'
