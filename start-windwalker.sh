@@ -7,7 +7,6 @@ echo "🚀 WindWalker Code-Server 시작 중..."
            --extensions-dir ~/.local/share/code-server/extensions \
            --disable-telemetry \
            --auth none \
-           --log debug \
-           .
+           --log debug
 
 echo "🔴 WindWalker Code-Server가 종료되었습니다."
