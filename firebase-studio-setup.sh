@@ -48,6 +48,7 @@ fi
            --extensions-dir ~/.local/share/code-server/extensions \
            --disable-telemetry \
            --auth none \
+           --log debug \
            . &
 
 CODE_SERVER_PID=$!
