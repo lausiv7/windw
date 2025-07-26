@@ -7,6 +7,7 @@
   packages = [
     pkgs.nodejs_20
     pkgs.zulu
+    pkgs.code-server
   ];
   # Sets environment variables in the workspace
   env = {};
@@ -35,6 +36,10 @@
       previews = {
         web = {
           command = ["npm" "run" "dev" "--" "--port" "$PORT" "--hostname" "0.0.0.0"];
+          manager = "web";
+        };
+        code-server = {
+          command = ["code-server" "--bind-addr" "0.0.0.0:8080" "--auth" "none" "~/studio"];
           manager = "web";
         };
       };
