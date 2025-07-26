@@ -26,19 +26,25 @@ mkdir -p ~/.local/share/code-server/extensions
 
 # 4. 필수 VS Code 확장 설치
 echo "🔌 VS Code 확장 설치..."
-code-server --install-extension ms-vscode.vscode-typescript-next --force
-code-server --install-extension esbenp.prettier-vscode --force
-code-server --install-extension bradlc.vscode-tailwindcss --force
-code-server --install-extension ms-vscode.vscode-json --force
+~/.local/bin/code-server --install-extension ms-vscode.vscode-typescript-next --force
+~/.local/bin/code-server --install-extension esbenp.prettier-vscode --force
+~/.local/bin/code-server --install-extension bradlc.vscode-tailwindcss --force
+~/.local/bin/code-server --install-extension ms-vscode.vscode-json --force
 
 # 5. 시작 스크립트 생성
 cat > ./start-windwalker.sh << 'EOF'
 #!/bin/bash
 echo "🚀 WindWalker 시작 중..."
 
+# 포트 9002를 사용하는 프로세스가 있으면 종료
+if lsof -t -i:9002; then
+  echo "Port 9002 is in use. Killing the process..."
+  kill -9 $(lsof -t -i:9002)
+fi
+
 # Code-Server 백그라운드 실행
 # --auth none: 비밀번호 없이 접속 허용
-code-server --bind-addr 0.0.0.0:8080 \
+~/.local/bin/code-server --bind-addr 0.0.0.0:8080 \
            --user-data-dir ~/.local/share/code-server \
            --extensions-dir ~/.local/share/code-server/extensions \
            --disable-telemetry \
@@ -58,7 +64,7 @@ echo ""
 echo "종료하려면 Ctrl+C를 누르세요"
 
 # Ctrl+C 시 모든 프로세스 종료
-trap "kill $CODE_SERVER_PID $NEXT_PID; exit" INT
+trap "kill $CODE_SERVER_PID $NEXT_PID 2>/dev/null; exit" INT
 
 # 프로세스 유지
 wait
@@ -70,7 +76,7 @@ echo ""
 echo "🎉 Firebase Studio용 WindWalker 설정 완료!"
 echo ""
 echo "📋 다음 단계:"
-echo "1. 터미널에서 'sh firebase-studio-setup.sh'를 실행하여 설정을 완료하세요."
+echo "1. 터미널에서 'sh firebase-studio-setup.sh'를 다시 실행하여 설정을 완료하세요."
 echo "2. 설정이 끝나면 './start-windwalker.sh'를 실행하여 개발 환경을 시작하세요."
 echo "3. Firebase Studio에서 포트 8080과 9002를 열어주세요."
 echo ""
