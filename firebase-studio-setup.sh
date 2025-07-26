@@ -35,10 +35,10 @@ cat > ./start-windwalker.sh << 'EOF'
 #!/bin/bash
 echo "🚀 WindWalker 시작 중..."
 
-# 포트 9002를 사용하는 프로세스가 있으면 종료
-if lsof -t -i:9002; then
-  echo "Port 9002 is in use. Killing the process..."
-  kill -9 $(lsof -t -i:9002)
+# 포트 9003을 사용하는 프로세스가 있으면 종료
+if lsof -t -i:9003; then
+  echo "Port 9003 is in use. Killing the process..."
+  kill -9 $(lsof -t -i:9003)
 fi
 
 # Code-Server 백그라운드 실행
@@ -52,13 +52,13 @@ fi
 
 CODE_SERVER_PID=$!
 
-# Next.js 개발 서버 실행 (포트 9002)
+# Next.js 개발 서버 실행 (포트 9003)
 npm run dev &
 NEXT_PID=$!
 
 echo "✅ WindWalker 시작 완료!"
 echo "🌐 VS Code IDE: http://localhost:8080"
-echo "👁️ Next.js Preview: http://localhost:9002"
+echo "👁️ Next.js Preview: http://localhost:9003"
 echo ""
 echo "종료하려면 Ctrl+C를 누르세요"
 
@@ -77,5 +77,5 @@ echo ""
 echo "📋 다음 단계:"
 echo "1. 터미널에서 'sh firebase-studio-setup.sh'를 다시 실행하여 설정을 완료하세요."
 echo "2. 설정이 끝나면 './start-windwalker.sh'를 실행하여 개발 환경을 시작하세요."
-echo "3. Firebase Studio에서 포트 8080과 9002를 열어주세요."
+echo "3. Firebase Studio에서 포트 8080과 9003을 열어주세요."
 echo ""
