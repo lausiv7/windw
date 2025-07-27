@@ -8,14 +8,6 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  async rewrites() {
-    return [
-      {
-        source: '/ide/:path*',
-        destination: 'http://localhost:8080/:path*',
-      },
-    ]
-  },
   images: {
     remotePatterns: [
       {
