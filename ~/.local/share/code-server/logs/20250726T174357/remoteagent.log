@@ -9,3 +9,4 @@
 2025-07-26 17:44:00.010 [info] [127.0.0.1][c05a6fd5][ManagementConnection] New connection established.
 2025-07-26 17:44:01.829 [info] [127.0.0.1][3f9e5f0a][ExtensionHostConnection] New connection established.
 2025-07-26 17:44:01.915 [info] [127.0.0.1][3f9e5f0a][ExtensionHostConnection] <4740> Launched Extension Host Process.
+2025-07-26 18:54:41.619 [info] [127.0.0.1][c05a6fd5][ManagementConnection] The client has disconnected, will wait for reconnection 3h before disposing...
