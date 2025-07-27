@@ -1,0 +1,22 @@
+2025-07-27 09:44:48.814 [info] 
+
+
+
+
+2025-07-27 09:44:48.827 [info] Extension host agent started.
+2025-07-27 09:44:48.996 [error] [127.0.0.1][73833115][ManagementConnection] Unknown reconnection token (never seen).
+2025-07-27 09:44:49.493 [error] [127.0.0.1][f53ae190][ExtensionHostConnection] Unknown reconnection token (never seen).
+2025-07-27 09:44:55.628 [info] [127.0.0.1][6eb4f697][ManagementConnection] New connection established.
+2025-07-27 09:44:57.027 [info] [127.0.0.1][6c83150e][ExtensionHostConnection] New connection established.
+2025-07-27 09:44:57.071 [info] [127.0.0.1][6c83150e][ExtensionHostConnection] <25135> Launched Extension Host Process.
+2025-07-27 09:45:26.177 [info] [127.0.0.1][bb8d7136][ManagementConnection] New connection established.
+2025-07-27 09:45:27.284 [info] [127.0.0.1][a240fdce][ExtensionHostConnection] New connection established.
+2025-07-27 09:45:27.304 [info] [127.0.0.1][a240fdce][ExtensionHostConnection] <25602> Launched Extension Host Process.
+2025-07-27 09:45:27.407 [warning] RequestStore#acceptReply was called without receiving a matching request 9
+2025-07-27 09:45:27.410 [warning] RequestStore#acceptReply was called without receiving a matching request 10
+2025-07-27 09:45:27.410 [warning] RequestStore#acceptReply was called without receiving a matching request 11
+2025-07-27 09:45:27.410 [warning] RequestStore#acceptReply was called without receiving a matching request 12
+2025-07-27 09:45:27.411 [warning] RequestStore#acceptReply was called without receiving a matching request 13
+2025-07-27 09:45:27.411 [warning] RequestStore#acceptReply was called without receiving a matching request 14
+2025-07-27 09:45:27.411 [warning] RequestStore#acceptReply was called without receiving a matching request 15
+2025-07-27 09:45:27.411 [warning] RequestStore#acceptReply was called without receiving a matching request 16

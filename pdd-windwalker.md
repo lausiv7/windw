@@ -41,12 +41,13 @@ Code-Server + VS Code Extensions + Docker +  RAG 시스템
 ```mermaid
 graph TB
     subgraph "브라우저 (windwalker.com)"
-        A[사용자] --> B[Code-Server VS Code Web]
+        A[사용자] --> B[Next.js App Shell]
+        B -- "Iframe (Code Mode)" --> C[Code-Server]
+        B -- "Iframe (Preview Mode)" --> J[Preview Server]
     end
     
     subgraph "Code-Server 컨테이너"
-        B --> C[VS Code Editor]
-        B --> D[WindWalker Extension]
+        C --> D[WindWalker VS Code Extension]
         D --> E[AI Chat Panel]
         D --> F[Live Preview Panel] 
         D --> G[Deploy Panel]
@@ -65,13 +66,13 @@ graph TB
         N[호스팅 플랫폼<br/>Vercel/Netlify]
     end
     
-    E --> I
-    I --> H
-    I --> L
-    F --> J
-    G --> K
-    K --> N
-    I --> M
+    E -- API Call --> I
+    I -- Search --> H
+    I -- LLM Call --> L
+    F -- Proxy / Direct --> J
+    G -- API Call --> K
+    K -- Deploy --> N
+    I -- Code Fetch --> M
     
     style D fill:#ff9999
     style H fill:#99ccff
