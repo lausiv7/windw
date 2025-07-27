@@ -20,3 +20,16 @@
 2025-07-27 09:45:27.411 [warning] RequestStore#acceptReply was called without receiving a matching request 14
 2025-07-27 09:45:27.411 [warning] RequestStore#acceptReply was called without receiving a matching request 15
 2025-07-27 09:45:27.411 [warning] RequestStore#acceptReply was called without receiving a matching request 16
+2025-07-27 09:50:18.088 [info] [127.0.0.1][bb8d7136][ManagementConnection] The client has disconnected gracefully, so the connection will be disposed.
+2025-07-27 09:50:18.183 [info] [127.0.0.1][a240fdce][ExtensionHostConnection] <25602> Extension Host Process exited with code: 0, signal: null.
+2025-07-27 09:50:20.516 [info] [127.0.0.1][f96461b5][ManagementConnection] New connection established.
+2025-07-27 09:50:22.077 [info] [127.0.0.1][d96e4ed9][ExtensionHostConnection] New connection established.
+2025-07-27 09:50:22.124 [info] [127.0.0.1][d96e4ed9][ExtensionHostConnection] <30051> Launched Extension Host Process.
+2025-07-27 09:50:22.163 [warning] RequestStore#acceptReply was called without receiving a matching request 17
+2025-07-27 09:50:22.163 [warning] RequestStore#acceptReply was called without receiving a matching request 18
+2025-07-27 09:50:22.163 [warning] RequestStore#acceptReply was called without receiving a matching request 19
+2025-07-27 09:50:22.164 [warning] RequestStore#acceptReply was called without receiving a matching request 20
+2025-07-27 09:50:22.164 [warning] RequestStore#acceptReply was called without receiving a matching request 21
+2025-07-27 09:50:22.164 [warning] RequestStore#acceptReply was called without receiving a matching request 22
+2025-07-27 09:50:22.164 [warning] RequestStore#acceptReply was called without receiving a matching request 23
+2025-07-27 09:50:22.164 [warning] RequestStore#acceptReply was called without receiving a matching request 24
