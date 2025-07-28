@@ -1,0 +1,103 @@
+2025-07-28 09:45:24.891 [info] [main] Log level: Debug
+2025-07-28 09:45:24.892 [info] [main] Validating found git in: "git"
+2025-07-28 09:45:24.892 [info] [main] Using git "2.47.2" from "git"
+2025-07-28 09:45:24.892 [info] [Model][doInitialScan] Initial repository scan started
+2025-07-28 09:45:24.892 [info] > git rev-parse --show-toplevel [2196ms]
+2025-07-28 09:45:24.892 [info] > git rev-parse --git-dir --git-common-dir [252ms]
+2025-07-28 09:45:24.892 [info] [Model][openRepository] Opened repository (path): /home/user/studio
+2025-07-28 09:45:24.892 [info] [Model][openRepository] Opened repository (real path): /home/user/studio
+2025-07-28 09:45:24.892 [info] > git config --get commit.template [42ms]
+2025-07-28 09:45:24.983 [info] > git for-each-ref --format=%(refname)%00%(upstream:short)%00%(objectname)%00%(upstream:track)%00%(upstream:remotename)%00%(upstream:remoteref) refs/heads/main refs/remotes/main [103ms]
+2025-07-28 09:45:25.141 [info] > git status -z -uall [79ms]
+2025-07-28 09:45:25.153 [info] > git for-each-ref --sort -committerdate --format %(refname)%00%(objectname)%00%(*objectname) [46ms]
+2025-07-28 09:45:25.284 [info] > git rev-parse --show-toplevel [277ms]
+2025-07-28 09:45:25.576 [info] > git for-each-ref --format=%(refname)%00%(upstream:short)%00%(objectname)%00%(upstream:track)%00%(upstream:remotename)%00%(upstream:remoteref) refs/heads/main refs/remotes/main [316ms]
+2025-07-28 09:45:25.672 [info] > git check-ignore -v -z --stdin [48ms]
+2025-07-28 09:45:25.679 [info] > git config --get --local branch.main.vscode-merge-base [75ms]
+2025-07-28 09:45:25.679 [warning] [Git][config] git config failed: Failed to execute git
+2025-07-28 09:45:25.694 [info] > git rev-parse --show-toplevel [321ms]
+2025-07-28 09:45:25.698 [info] > git config --get commit.template [342ms]
+2025-07-28 09:45:25.750 [info] > git reflog main --grep-reflog=branch: Created from *. [58ms]
+2025-07-28 09:45:25.799 [info] > git for-each-ref --format=%(refname)%00%(upstream:short)%00%(objectname)%00%(upstream:track)%00%(upstream:remotename)%00%(upstream:remoteref) refs/heads/main refs/remotes/main [56ms]
+2025-07-28 09:45:25.800 [info] > git rev-parse --show-toplevel [87ms]
+2025-07-28 09:45:25.820 [info] > git symbolic-ref --short refs/remotes/origin/HEAD [58ms]
+2025-07-28 09:45:25.820 [info] fatal: ref refs/remotes/origin/HEAD is not a symbolic ref
+2025-07-28 09:45:25.821 [warning] [Repository][getDefaultBranch] Failed to get default branch details: Failed to execute git.
+2025-07-28 09:45:25.843 [info] > git rev-parse --show-toplevel [34ms]
+2025-07-28 09:45:25.851 [info] > git merge-base refs/heads/main refs/remotes/origin/main [19ms]
+2025-07-28 09:45:25.884 [info] > git rev-parse --show-toplevel [33ms]
+2025-07-28 09:45:25.906 [info] > git status -z -uall [36ms]
+2025-07-28 09:45:25.908 [info] > git diff --name-status -z --diff-filter=ADMR ab65441db48990f73b4370659d0940a14557166f...refs/remotes/origin/main [47ms]
+2025-07-28 09:45:25.911 [info] > git rev-parse --show-toplevel [14ms]
+2025-07-28 09:45:25.911 [info] > git for-each-ref --sort -committerdate --format %(refname)%00%(objectname)%00%(*objectname) [29ms]
+2025-07-28 09:45:25.971 [info] > git rev-parse --show-toplevel [32ms]
+2025-07-28 09:45:26.036 [info] > git rev-parse --show-toplevel [50ms]
+2025-07-28 09:45:26.081 [info] > git rev-parse --show-toplevel [19ms]
+2025-07-28 09:45:26.086 [info] [Model][doInitialScan] Initial repository scan completed - repositories (1), closed repositories (0), parent repositories (0), unsafe repositories (0)
+2025-07-28 09:45:26.133 [info] > git show --textconv :next.config.ts [28ms]
+2025-07-28 09:45:26.142 [info] > git ls-files --stage -- next.config.ts [17ms]
+2025-07-28 09:45:26.163 [info] > git cat-file -s 9d8de362bbe1cd2da3e71af087a3cdf789e718e1 [9ms]
+2025-07-28 09:45:26.358 [info] > git blame --root --incremental 8a7a2c2eb3954e0f49e2ddd3d6fbd0d4d0247be2 -- next.config.ts [21ms]
+2025-07-28 09:45:31.630 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:45:32.624 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:45:33.625 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:45:34.619 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:45:35.627 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:45:35.678 [info] > git config --get commit.template [18ms]
+2025-07-28 09:45:35.720 [info] > git for-each-ref --format=%(refname)%00%(upstream:short)%00%(objectname)%00%(upstream:track)%00%(upstream:remotename)%00%(upstream:remoteref) refs/heads/main refs/remotes/main [21ms]
+2025-07-28 09:45:35.745 [info] > git status -z -uall [17ms]
+2025-07-28 09:45:35.754 [info] > git for-each-ref --sort -committerdate --format %(refname)%00%(objectname)%00%(*objectname) [14ms]
+2025-07-28 09:45:36.631 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:45:37.631 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:45:38.621 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:45:38.844 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/logs/20250728T094512/exthost1/output_logging_20250728T094519/1-Tailwind CSS IntelliSense.log
+2025-07-28 09:45:39.619 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:45:40.623 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:45:40.768 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/logs/20250728T094512/exthost1/remoteexthost.log
+2025-07-28 09:45:40.785 [info] > git config --get commit.template [6ms]
+2025-07-28 09:45:40.788 [info] > git for-each-ref --format=%(refname)%00%(upstream:short)%00%(objectname)%00%(upstream:track)%00%(upstream:remotename)%00%(upstream:remoteref) refs/heads/main refs/remotes/main [3ms]
+2025-07-28 09:45:40.812 [info] > git status -z -uall [18ms]
+2025-07-28 09:45:40.816 [info] > git for-each-ref --sort -committerdate --format %(refname)%00%(objectname)%00%(*objectname) [9ms]
+2025-07-28 09:45:41.623 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:45:42.627 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:45:43.621 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:45:44.639 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:45:45.622 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:45:46.622 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:45:47.626 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:45:48.622 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:45:49.647 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:45:50.625 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:45:51.625 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:45:52.633 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:45:53.626 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:45:54.635 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:45:55.633 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:45:56.638 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:45:57.653 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:45:58.631 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:45:59.634 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:46:00.633 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:46:01.635 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:46:02.641 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:46:04.593 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:46:04.636 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:46:05.637 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:46:06.639 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:46:07.637 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:46:09.599 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:46:09.636 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:46:10.639 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:46:11.636 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:46:12.638 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:46:14.595 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:46:14.645 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:46:15.642 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:46:16.640 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:46:17.644 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:46:19.632 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:46:19.706 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:46:20.726 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:46:21.761 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:46:22.141 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/.modified
+2025-07-28 09:46:22.141 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/start-windwalker.sh

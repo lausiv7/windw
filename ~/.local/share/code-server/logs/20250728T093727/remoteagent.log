@@ -19,3 +19,5 @@
 2025-07-28 09:37:33.633 [debug] Using cached extensions scan result system file:///home/user/.local/lib/code-server-4.102.2/lib/vscode/extensions
 2025-07-28 09:37:34.972 [debug] ComputeTargetPlatform: linux-x64
 2025-07-28 09:37:35.143 [debug] Using cached extensions scan result system file:///home/user/.local/lib/code-server-4.102.2/lib/vscode/extensions
+2025-07-28 09:44:30.468 [info] [127.0.0.1][21d47b13][ManagementConnection] The client has disconnected gracefully, so the connection will be disposed.
+2025-07-28 09:44:30.775 [info] [127.0.0.1][c15856cf][ExtensionHostConnection] <138068> Extension Host Process exited with code: 0, signal: null.

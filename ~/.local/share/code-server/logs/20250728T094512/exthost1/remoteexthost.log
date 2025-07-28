@@ -1,0 +1,38 @@
+2025-07-28 09:45:19.202 [info] Extension host with pid 141569 started
+2025-07-28 09:45:19.203 [info] Lock '/home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock': Lock acquired.
+2025-07-28 09:45:19.437 [info] ExtensionService#_doActivateExtension vscode.emmet, startup: false, activationEvent: 'onLanguage'
+2025-07-28 09:45:19.439 [info] ExtensionService#_doActivateExtension vscode.typescript-language-features, startup: false, activationEvent: 'onLanguage:typescript'
+2025-07-28 09:45:20.087 [info] ExtensionService#_doActivateExtension vscode.git-base, startup: true, activationEvent: '*', root cause: vscode.git
+2025-07-28 09:45:20.114 [info] ExtensionService#_doActivateExtension vscode.npm, startup: true, activationEvent: 'workspaceContains:package.json'
+2025-07-28 09:45:20.422 [debug] ProxyResolver#resolveProxy https://default.exp-tas.com/vscode/ab undefined 
+2025-07-28 09:45:20.466 [info] ExtensionService#_doActivateExtension vscode.git, startup: true, activationEvent: '*'
+2025-07-28 09:45:20.466 [info] ExtensionService#_doActivateExtension vscode.github, startup: true, activationEvent: '*'
+2025-07-28 09:45:20.784 [debug] ProxyResolver#loadSystemCertificates count 129
+2025-07-28 09:45:20.872 [debug] ProxyResolver#loadSystemCertificates count filtered 118
+2025-07-28 09:45:22.130 [info] Eager extensions activated
+2025-07-28 09:45:22.140 [info] ExtensionService#_doActivateExtension vscode.debug-auto-launch, startup: false, activationEvent: 'onStartupFinished'
+2025-07-28 09:45:22.141 [info] ExtensionService#_doActivateExtension vscode.merge-conflict, startup: false, activationEvent: 'onStartupFinished'
+2025-07-28 09:45:22.142 [info] ExtensionService#_doActivateExtension bradlc.vscode-tailwindcss, startup: false, activationEvent: 'onStartupFinished'
+2025-07-28 09:45:22.154 [info] ExtensionService#_doActivateExtension esbenp.prettier-vscode, startup: false, activationEvent: 'onStartupFinished'
+2025-07-28 09:45:24.353 [debug] ProxyResolver#resolveProxy https://mobile.events.data.microsoft.com/OneCollector/1.0?cors=true&content-type=application/x-json-stream undefined 
+2025-07-28 09:45:25.385 [info] ExtensionService#_doActivateExtension vscode.github-authentication, startup: false, activationEvent: 'onAuthenticationRequest:github'
+2025-07-28 09:45:25.563 [debug] ExtHostSearch /home/user/.local/lib/code-server-4.102.2/lib/vscode/node_modules/@vscode/ripgrep/bin/rg --files --hidden --case-sensitive --no-require-git -g '**/{tailwind,tailwind.config,tailwind.*.config,tailwind.config.*}.{js,cjs,ts,mjs,mts,cts}' -g '!**/.git' -g '!**/.svn' -g '!**/.hg' -g '!**/.DS_Store' -g '!**/Thumbs.db' -g '!**/*.crswap' -g '!/{**/.git,**/.svn,**/.hg,**/.DS_Store,**/Thumbs.db,**/*.crswap,**/.git/**,**/node_modules/**,**/.hg/**,**/.svn/**}' --no-ignore --follow --no-config --no-ignore-global
+ - cwd: /home/user/studio
+ - Sibling clauses: {}
+2025-07-28 09:45:25.694 [debug] ExtHostSearch Search finished. Stats: {"cmdTime":151,"fileWalkTime":151,"directoriesWalked":0,"filesWalked":0,"cmdResultCount":1}
+2025-07-28 09:45:25.694 [debug] Ext host file search time: 319ms
+2025-07-28 09:45:26.556 [debug] ExtHostSearch /home/user/.local/lib/code-server-4.102.2/lib/vscode/node_modules/@vscode/ripgrep/bin/rg --files --hidden --case-sensitive --no-require-git -g '**/tsconfig*.json' -g '!**/.git' -g '!**/.svn' -g '!**/.hg' -g '!**/.DS_Store' -g '!**/Thumbs.db' -g '!**/*.crswap' -g '!**/{node_modules,.*}/**' --no-ignore --follow --no-config --no-ignore-global
+ - cwd: /home/user/studio
+ - Sibling clauses: {}
+2025-07-28 09:45:26.571 [debug] ExtHostSearch /home/user/.local/lib/code-server-4.102.2/lib/vscode/node_modules/@vscode/ripgrep/bin/rg --files --hidden --case-sensitive --no-require-git -g '**/package.json' -g '!**/.git' -g '!**/.svn' -g '!**/.hg' -g '!**/.DS_Store' -g '!**/Thumbs.db' -g '!**/*.crswap' -g '!**/{node_modules,.vscode-test}/**' --no-ignore --follow --no-config --no-ignore-global
+ - cwd: /home/user/studio
+ - Sibling clauses: {}
+2025-07-28 09:45:26.603 [debug] ExtHostSearch Search finished. Stats: {"cmdTime":64,"fileWalkTime":64,"directoriesWalked":0,"filesWalked":0,"cmdResultCount":2}
+2025-07-28 09:45:26.610 [debug] Ext host file search time: 72ms
+2025-07-28 09:45:26.633 [debug] ExtHostSearch Search finished. Stats: {"cmdTime":74,"fileWalkTime":74,"directoriesWalked":0,"filesWalked":0,"cmdResultCount":9}
+2025-07-28 09:45:26.636 [debug] Ext host file search time: 98ms
+2025-07-28 09:45:26.893 [info] ExtensionService#_doActivateExtension vscode.configuration-editing, startup: false, activationEvent: 'onLanguage:json'
+2025-07-28 09:45:26.893 [info] ExtensionService#_doActivateExtension vscode.extension-editing, startup: false, activationEvent: 'onLanguage:json'
+2025-07-28 09:45:26.893 [info] ExtensionService#_doActivateExtension vscode.json-language-features, startup: false, activationEvent: 'onLanguage:json'
+2025-07-28 09:45:28.540 [debug] ProxyResolver#resolveProxy https://mobile.events.data.microsoft.com/OneCollector/1.0?cors=true&content-type=application/x-json-stream undefined 
+2025-07-28 09:45:40.557 [debug] ProxyResolver#resolveProxy https://mobile.events.data.microsoft.com/OneCollector/1.0?cors=true&content-type=application/x-json-stream undefined 

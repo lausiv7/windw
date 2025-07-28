@@ -40,3 +40,16 @@
 2025-07-28 09:37:42.754 [info] ExtensionService#_doActivateExtension vscode.json-language-features, startup: false, activationEvent: 'onLanguage:json'
 2025-07-28 09:37:43.859 [debug] ProxyResolver#resolveProxy https://mobile.events.data.microsoft.com/OneCollector/1.0?cors=true&content-type=application/x-json-stream undefined 
 2025-07-28 09:37:56.306 [debug] ProxyResolver#resolveProxy https://mobile.events.data.microsoft.com/OneCollector/1.0?cors=true&content-type=application/x-json-stream undefined 
+2025-07-28 09:44:30.510 [info] Extension host terminating: received terminate message from renderer
+2025-07-28 09:44:30.510 [info] Lock '/home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock': Marking the lockfile as scheduled to be released in 6000 ms.
+2025-07-28 09:44:30.628 [error] [bradlc.vscode-tailwindcss] provider FAILED
+2025-07-28 09:44:30.632 [error] Error: Channel has been closed
+	at s (file:///home/user/.local/lib/code-server-4.102.2/lib/vscode/out/vs/workbench/api/node/extensionHostProcess.js:120:2431)
+	at Object.appendLine (file:///home/user/.local/lib/code-server-4.102.2/lib/vscode/out/vs/workbench/api/node/extensionHostProcess.js:120:2570)
+	at ed.error (/home/user/studio/~/.local/share/code-server/extensions/bradlc.vscode-tailwindcss-0.14.25-universal/dist/extension.js:39:683)
+	at ed.handleFailedRequest (/home/user/studio/~/.local/share/code-server/extensions/bradlc.vscode-tailwindcss-0.14.25-universal/dist/extension.js:39:21044)
+	at /home/user/studio/~/.local/share/code-server/extensions/bradlc.vscode-tailwindcss-0.14.25-universal/dist/extension.js:37:72953
+	at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+	at async Object.provideDocumentColors (/home/user/studio/~/.local/share/code-server/extensions/bradlc.vscode-tailwindcss-0.14.25-universal/dist/extension.js:40:14320)
+	at async cA.provideColors (file:///home/user/.local/lib/code-server-4.102.2/lib/vscode/out/vs/workbench/api/node/extensionHostProcess.js:140:151102)
+2025-07-28 09:44:30.679 [info] Extension host with pid 138068 exiting with code 0

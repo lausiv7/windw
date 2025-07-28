@@ -572,3 +572,9 @@
 2025-07-28 09:44:27.020 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/logs/20250728T093727/exthost1/output_logging_20250728T093734/1-Tailwind CSS IntelliSense.log
 2025-07-28 09:44:27.850 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
 2025-07-28 09:44:28.865 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:44:29.328 [debug] [FileEventLogger][onDotGitFileChange] /home/user/studio/.git/index
+2025-07-28 09:44:29.549 [debug] [FileEventLogger][onDotGitFileChange] /home/user/studio/.git/index
+2025-07-28 09:44:29.757 [debug] [FileEventLogger][onDotGitFileChange] /home/user/studio/.git/index
+2025-07-28 09:44:29.764 [debug] [FileEventLogger][onDotGitFileChange] /home/user/studio/.git/COMMIT_EDITMSG
+2025-07-28 09:44:29.901 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/User/workspaceStorage/166a38c3/vscode.lock
+2025-07-28 09:44:30.114 [debug] [FileEventLogger][onWorkspaceWorkingTreeFileChange] /home/user/studio/~/.local/share/code-server/code-server-ipc.sock

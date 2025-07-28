@@ -1,0 +1,23 @@
+2025-07-28 09:45:12.416 [info] 
+
+
+
+
+2025-07-28 09:45:12.435 [info] Extension host agent started.
+2025-07-28 09:45:12.453 [debug] No extensions are marked as removed.
+2025-07-28 09:45:16.691 [info] [127.0.0.1][66a0e2fd][ManagementConnection] New connection established.
+2025-07-28 09:45:17.396 [debug] Using cached extensions scan result user file:///home/user/studio/~/.local/share/code-server/extensions/extensions.json
+2025-07-28 09:45:17.410 [debug] Using cached extensions scan result system file:///home/user/.local/lib/code-server-4.102.2/lib/vscode/extensions
+2025-07-28 09:45:17.432 [debug] Using cached extensions scan result system file:///home/user/.local/lib/code-server-4.102.2/lib/vscode/extensions
+2025-07-28 09:45:17.438 [debug] ComputeTargetPlatform: linux-x64
+2025-07-28 09:45:17.866 [info] [127.0.0.1][6357cc85][ExtensionHostConnection] New connection established.
+2025-07-28 09:45:17.939 [info] [127.0.0.1][6357cc85][ExtensionHostConnection] <141569> Launched Extension Host Process.
+2025-07-28 09:45:18.514 [debug] Using cached extensions scan result system file:///home/user/.local/lib/code-server-4.102.2/lib/vscode/extensions
+2025-07-28 09:45:18.555 [debug] Terminal profile not validated rbash ["/bin/rbash"]
+2025-07-28 09:45:18.556 [debug] Terminal profile not validated dash ["/bin/dash"]
+2025-07-28 09:45:18.794 [debug] Terminal profile not validated zsh ["zsh"]
+2025-07-28 09:45:18.795 [debug] Terminal profile not validated fish ["fish"]
+2025-07-28 09:45:18.795 [debug] Terminal profile not validated pwsh ["pwsh"]
+2025-07-28 09:45:19.106 [debug] Using cached extensions scan result system file:///home/user/.local/lib/code-server-4.102.2/lib/vscode/extensions
+2025-07-28 09:45:21.646 [debug] ComputeTargetPlatform: linux-x64
+2025-07-28 09:45:21.871 [debug] Using cached extensions scan result system file:///home/user/.local/lib/code-server-4.102.2/lib/vscode/extensions
