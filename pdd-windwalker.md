@@ -80,87 +80,24 @@ WindWalker는 아이디어 구상과 실제 작동하는 결과물 사이의 장
 
 # 🏛️ 3. 시스템 구조
 
-## 3.1 전체 시스템 구조: VS Code 확장을 '허브'로 사용하는 이유
+## 3.1 전체 시스템 구조 (현재 Phase 1 기준)
 
-WindWalker의 아키텍처에서 **VS Code 확장(WindWalker Extension)**은 단순한 추가 기능이 아닌, 시스템의 모든 개발 관련 작업을 조율하는 **중앙 허브(Central Hub) 또는 오케스트레이터(Orchestrator)** 역할을 수행합니다.
+현재 우리의 시스템은 **Phase 1: 단일 사용자 개발 및 프로토타이핑 환경**에 해당합니다. Next.js 웹 앱이 `code-server`를 `iframe`으로 감싸고 있으며, `code-server`는 Firebase 서버(Nix 환경) 위에서 단일 프로세스로 직접 실행됩니다.
 
--   **전문적인 설명:** VS Code는 파일 시스템 접근, 터미널 명령어 실행, 소스 코드 분석(LSP), 디버깅 등 로컬 개발 환경과 상호작용할 수 있는 강력하고 안정적인 API 집합을 제공합니다. WindWalker 확장은 이 API들을 활용하여 **사용자 인터페이스(Webview 패널)와 실제 개발 작업(코드 수정, 빌드, 검색) 사이를 연결하는 '브리지(Bridge)'** 역할을 수행합니다. AI 채팅창에서 "파일 찾아줘"라는 요청이 오면, 확장은 VS Code의 파일 API를 호출합니다. "코드 실행해줘"라는 요청이 오면, 확장은 터미널 API를 사용합니다. 이러한 로직을 확장 프로그램에 중앙화함으로써, 우리는 각 기능(채팅, 프리뷰, 배포)이 개별적으로 파일 시스템이나 터미널을 제어할 필요 없이, 확장에게 **"작업을 위임"** 할 수 있습니다. 이는 **관심사의 분리(Separation of Concerns)** 원칙을 따르는 효율적인 설계입니다.
+**한계점:** 현재 구조는 다수의 사용자를 동시에 지원할 수 없으며, 모든 사용자가 동일한 `code-server` 인스턴스와 파일 시스템을 공유하게 됩니다. 이는 보안과 안정성 측면에서 최종 목표가 아닙니다.
 
-```mermaid
-graph TD
-    subgraph "UI Layer (Webviews)"
-        A[AI Chat Panel]
-        B[Live Preview Panel]
-        C[Deploy Panel]
-    end
+## 3.2 목표 시스템 구조 (Phase 3: Docker 기반 멀티테넌시)
 
-    subgraph "중앙 허브 (Central Hub)"
-        D[<b>WindWalker VS Code Extension</b>]
-    end
+최종적으로 WindWalker는 **다수의 사용자를 지원하는 클라우드 IDE**로 발전해야 합니다. 이를 위해 **Docker**를 도입하여 각 사용자에게 격리된 개발 환경을 제공하는 **멀티테넌트(Multi-tenant) 아키텍처**로 전환해야 합니다.
 
-    subgraph "VS Code Core APIs"
-        E[File System API]
-        F[Terminal API]
-        G[Source Control API]
-        H[Workspace API]
-    end
+-   **동작 방식:**
+    1.  사용자가 서비스에 접속하여 새 프로젝트를 시작하면,
+    2.  백엔드의 **오케스트레이터(Orchestrator)**가 해당 사용자를 위한 전용 Docker 컨테이너를 동적으로 생성하고 실행합니다.
+    3.  이 컨테이너 안에는 격리된 `code-server` 인스턴스, 프로젝트 파일, 필요한 개발 도구가 포함됩니다.
+    4.  사용자는 자신만의 독립된 개발 환경에 안전하게 접속합니다.
+    5.  일정 시간 사용하지 않으면, 시스템은 자원 효율화를 위해 해당 컨테이너를 자동으로 중지하거나 파기합니다.
 
-    subgraph "Backend Services"
-        I[Code Search/RAG API]
-        J[Build & Preview Service]
-        K[LLM API Gateway]
-    end
-
-    A -- "postMessage(메시지 전송)" --> D
-    B -- "postMessage(프리뷰 새로고침)" --> D
-    C -- "postMessage(배포 요청)" --> D
-
-    D -- "VS Code API 호출" --> E
-    D -- "VS Code API 호출" --> F
-    D -- "VS Code API 호출" --> G
-    D -- "VS Code API 호출" --> H
-    
-    D -- "HTTP 요청" --> I
-    D -- "HTTP 요청" --> J
-    D -- "HTTP 요청" --> K
-```
-*<center>그림 1: VS Code 확장의 중앙 허브 역할</center>*
-
-## 3.2 컴포넌트 아키텍처: UI 재사용 전략
-
-"프로토타이핑 모드"와 "코드 모드"에서 일관된 사용자 경험을 제공하고 개발 효율을 극대화하기 위해, 우리는 **UI 컴포넌트를 각 모드의 실행 로직과 분리하여 재사용**하는 전략을 채택합니다.
-
--   **전문적인 설명:** 이 아키텍처는 **"어댑터 패턴(Adapter Pattern)"** 의 변형으로 볼 수 있습니다. **`ui-core`** 라이브러리는 모든 환경(웹, VS Code 웹뷰)에서 재사용 가능한 순수 UI 컴포넌트(View)의 집합입니다. 각 환경은 자신만의 **"어댑터(Adapter)"**를 가집니다. **프로토타이핑 모드**의 어댑터는 React의 `useState`, `useEffect` 훅과 `fetch` API를 사용하여 상태 관리와 서버 통신을 처리합니다. 반면, **코드 모드**의 어댑터(VS Code 확장)는 `postMessage`를 통해 웹뷰와 통신하고 VS Code API를 호출하여 동일한 비즈니스 로직을 수행합니다. 이처럼 View는 공유하되, 그 View를 제어하는 Controller(또는 ViewModel)는 각 환경에 맞게 별도로 구현함으로써, UI의 일관성과 개발 생산성을 모두 달성할 수 있습니다.
-
-```mermaid
-graph TD
-    subgraph "<b>공통 UI 라이브러리 (ui-core)</b>"
-        A[AI Chat Panel UI<br/>(純 React Component)]
-        B[Preview Panel UI<br/>(純 React Component)]
-    end
-
-    subgraph "<b>프로토타이핑 모드 (Next.js 웹)</b>"
-        C["<b>웹 어댑터</b><br/>(useState, fetch API 사용)"] --> A
-        C --> B
-    end
-
-    subgraph "<b>코드 모드 (VS Code 확장)</b>"
-        D["<b>확장 어댑터</b><br/>(postMessage, VS Code API 사용)"] --> A
-        D --> B
-    end
-    
-    subgraph "Backend / 로직"
-        E[API 서버, 파일 시스템 등]
-    end
-    
-    C -- "HTTP/WebSocket" --> E
-    D -- "VS Code API / HTTP" --> E
-
-    style A fill:#D6EAF8
-    style B fill:#D6EAF8
-```
-*<center>그림 2: 어댑터 패턴을 통한 UI 재사용 아키텍처</center>*
-
+이 구조는 보안, 안정성, 확장성을 모두 만족시키는 검증된 클라우드 IDE 아키텍처입니다.
 
 ## 3.3 보안 구조
 
@@ -234,3 +171,5 @@ graph TD
 -   **AI 고도화:** 사용자의 디자인 선호도를 학습하여 일관된 스타일의 컴포넌트 제안. Figma 디자인을 AI가 인식하여 코드로 변환하는 기능.
 -   **백엔드 기능 확장:** "사용자 로그인 기능 추가해줘", "데이터베이스 연결해줘" 등 간단한 백엔드 로직을 대화형으로 생성.
 -   **플러그인 마켓플레이스:** 외부 개발자들이 WindWalker에서 사용할 수 있는 AI 프롬프트 템플릿이나 UI 킷을 공유/판매할 수 있는 생태계 구축.
+
+    
