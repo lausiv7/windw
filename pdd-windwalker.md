@@ -459,105 +459,251 @@ windwalker/
 └── logs/                           # 🆕 로그 파일
 ```
 
-## Phase 1 주요 변경사항
+### Phase 2: WindWalker 통합 아키텍처: 코드/프로토타이핑 모드 공통화
 
-### 2. Code-Server 도입
-- Docker Compose 기반 VS Code Web 환경
-- 브라우저에서 완전한 VS Code 경험 제공
-- 현재 Monaco Editor 대신 네이티브 VS Code Editor 사용
+#### 1. 개요
 
-### 3. 개발 환경 표준화
-- React, Next.js 프로젝트 템플릿 제공
-- 자동 확장 설치 및 설정
-- 원클릭 시작/종료 스크립트
+이 문서는 WindWalker IDE의 두 가지 핵심 모드인 **코드 모드(VS Code 확장)**와 **프로토타이PING 모드(웹)**에서 AI 채팅 패널과 프리뷰 패널의 UI를 어떻게 효율적으로 재사용할 것인지에 대한 아키텍처 설계를 정의합니다.
 
-### 4. 미래 확장성 고려
-- Phase 2에서 추가할 우측 패널을 위한 구조 준비
-- Phase 3에서 RAG 시스템 통합을 위한 API 서버 슬롯 예약
-
-## 다음 단계 준비사항
-
-### Phase 2 예정 작업
-- VS Code 확장 개발로 우측 AI 채팅 패널 추가
-- Live Preview 패널 구현
-- 기본 GPT API 연동
-
-### Phase 3 예정 작업  
-- 현재 Meilisearch RAG 시스템을 API 서버로 분리
-- AI 채팅과 RAG 시스템 연동
-- @Codebase 명령어 구현
-
-
-
-
-### Phase 2: VS Code 확장 및 UI 재사용 아키텍처 도입
-**목표**: AI 채팅/프리뷰 패널을 공통 UI 모듈로 구현하고, VS Code 확장을 중앙 허브로 사용하여 시스템 전체를 제어하는 아키텍처를 수립합니다.
-
-#### 2.1 변경된 아키텍처 원칙
-
-`docs/05`와 `docs/06` 문서를 통해 우리는 더 효율적이고 확장 가능한 아키텍처를 도입하기로 결정했습니다. 기존의 단순한 패널 추가 방식에서 벗어나, 다음과 같은 두 가지 핵심 원칙을 기반으로 시스템을 재설계합니다.
-
-##### 1. VS Code 확장을 '중앙 허브'로 사용하는 이유
-
-WindWalker 아키텍처에서 **VS Code 확장(WindWalker Extension)**은 단순한 추가 기능이 아니라, 시스템의 모든 개발 관련 작업을 조율하는 **중앙 허브(Central Hub) 또는 오케스트레이터(Orchestrator)** 역할을 수행합니다.
-
--   **전문적인 설명:** VS Code는 파일 시스템 접근, 터미널 명령어 실행, 소스 코드 분석(LSP), 디버깅 등 로컬 개발 환경과 상호작용할 수 있는 강력하고 안정적인 API 집합을 제공합니다. WindWalker 확장은 이 API들을 활용하여 **사용자 인터페이스(Webview 패널)와 실제 개발 작업(코드 수정, 빌드, 검색) 사이를 연결하는 '브리지(Bridge)'** 역할을 수행합니다. AI 채팅창에서 "파일 찾아줘"라는 요청이 오면, 확장은 VS Code의 파일 API를 호출합니다. "코드 실행해줘"라는 요청이 오면, 확장은 터미널 API를 사용합니다. 이러한 로직을 확장 프로그램에 중앙화함으로써, 우리는 각 기능(채팅, 프리뷰, 배포)이 개별적으로 파일 시스템이나 터미널을 제어할 필요 없이, 확장에게 **"작업을 위임"** 할 수 있습니다. 이는 **관심사의 분리(Separation of Concerns)** 원칙을 따르는 효율적인 설계입니다.
-
-##### 2. AI 채팅/프리뷰 패널의 UI 재사용 전략
-
-"프로토타이핑 모드"와 "코드 모드"에서 일관된 사용자 경험을 제공하고 개발 효율을 극대화하기 위해, 우리는 **UI 컴포넌트를 각 모드의 실행 로직과 분리하여 재사용**하는 전략을 채택합니다.
-
--   **전문적인 설명:** 이 아키텍처는 **"어댑터 패턴(Adapter Pattern)"**의 변형으로 볼 수 있습니다. **`ui-core`** 라이브러리는 모든 환경(웹, VS Code 웹뷰)에서 재사용 가능한 순수 UI 컴포넌트(View)의 집합입니다. 각 환경은 자신만의 **"어댑터(Adapter)"**를 가집니다. **프로토타이핑 모드**의 어댑터는 React의 `useState`, `useEffect` 훅과 `fetch` API를 사용하여 상태 관리와 서버 통신을 처리합니다. 반면, **코드 모드**의 어댑터(VS Code 확장)는 `postMessage`를 통해 웹뷰와 통신하고 VS Code API를 호출하여 동일한 비즈니스 로직을 수행합니다. 이처럼 View는 공유하되, 그 View를 제어하는 Controller(또는 ViewModel)는 각 환경에 맞게 별도로 구현함으로써, UI의 일관성과 개발 생산성을 모두 달성할 수 있습니다.
+**핵심 목표:** UI 로직은 한 번만 작성하고, 각 모드의 특성에 맞는 데이터 및 로직(Controller)만 별도로 구현하여 코드 재사용성을 극대화하고 일관된 사용자 경험을 제공합니다.
 
 ---
 
-#### 2.2 변경된 전체 시스템 구조
+#### 2. 통합 아키텍처 구조
 
-이러한 새로운 원칙을 반영하면, 전체 시스템 구조는 다음과 같이 변경됩니다. 가장 큰 변화는 **WindWalker Extension이 모든 상호작용의 중심**이 되고, **UI(WebView)가 명확히 분리**되는 점입니다.
+두 모드는 **공통 UI 라이브러리**를 공유하며, 각 모드는 자신의 환경에 맞는 '어댑터(Adapter)'를 통해 UI와 상호작용합니다.
 
 ```mermaid
 graph TD
-    subgraph "사용자 인터페이스 (공통 UI 라이브러리)"
-        A["AI 채팅 WebView<br/>(ui-core)"]
-        B["프리뷰 WebView<br/>(ui-core)"]
+    subgraph "사용자 인터페이스 (공통 UI 라이브러리 - React)"
+        A[<b>AI 채팅 패널 UI</b><br/>(입력창, 메시지 목록 등)]
+        B[<b>프리뷰 패널 UI</b><br/>(Iframe 래퍼, 디바이스 컨트롤 등)]
     end
 
-    subgraph "중앙 허브 (Code-Server 컨테이너)"
-        C[VS Code Editor]
-        D[<b>WindWalker Extension</b>]
+    subgraph "모드별 실행 환경"
+        subgraph "<b>코드 모드 (VS Code 확장)</b>"
+            C1[VS Code 확장 어댑터] --> A
+            C2[VS Code 확장 어댑터] --> B
+            C1 -- VS Code API --> D[파일 시스템, 터미널, RAG API]
+        end
+        subgraph "<b>프로토타이핑 모드 (Next.js 웹앱)</b>"
+            E1[Next.js 웹 어댑터] --> A
+            E2[Next.js 웹 어댑터] --> B
+            E1 -- Next.js API Routes --> D
+        end
     end
 
-    subgraph "백엔드 서비스들"
-        H[RAG API<br/>(코드 분석/검색)"]
-        I[Build & Preview Service<br/>(Vite/Next.js HMR)"]
-        J[Deploy Service]
-    end
-    
-    subgraph "외부 서비스"
-        K[LLM API]
-        L[호스팅 플랫폼 API<br/>(Vercel/Netlify)]
-    end
+    D -- 데이터 흐름 --> C1
+    D -- 데이터 흐름 --> E1
 
-    A -- "postMessage(...)" --> D
-    B -- "postMessage(...)" --> D
-
-    D -- "VS Code API<br/>(File, Terminal, etc.)" --> C
-    D -- "HTTP/RPC" --> H
-    D -- "HTTP/RPC" --> I
-    D -- "HTTP/RPC" --> J
-    
-    H -- "LLM Prompt" --> K
-    J -- "Deploy" --> L
-
-    style D fill:#ff9999
-    style H fill:#99ccff
-
+    style A fill:#D6EAF8
+    style B fill:#D6EAF8
 ```
 
--   **변경점 (시각적 비교):**
-    -   **중앙 집중화:** 기존 아키텍처에서는 AI 채팅 패널(E)이 RAG API(I)와 직접 통신하는 것처럼 보였지만, 변경된 구조에서는 모든 통신이 **WindWalker Extension(D)을 통해 중앙에서 관리**됩니다.
-    -   **UI 분리:** AI 채팅 패널과 프리뷰 패널이 **WebView**라는 독립된 UI 계층으로 명확히 분리되었습니다. 이들은 더 이상 확장의 일부가 아니라, 확장에 의해 제어되는 웹 페이지입니다.
-    -   **서비스 역할 명확화:** 백엔드 서비스들이 더 명확한 역할(RAG, 빌드/프리뷰, 배포)을 가지게 되었습니다.
+-   **공통 UI 라이브러리:** 순수한 React 컴포넌트로 구성되며, 상태나 비즈니스 로직을 갖지 않고 오직 `props`를 통해 데이터를 받아 UI를 렌더링하고, 콜백 함수(`onSendMessage` 등)를 통해 사용자 이벤트를 상위로 전달하는 역할만 합니다.
+-   **어댑터(Adapter):** 각 모드의 "두뇌"에 해당합니다.
+    -   **VS Code 확장 어댑터:** VS Code의 API를 사용하여 파일 시스템에 접근하거나, 터미널 명령을 실행하고, 그 결과를 공통 UI 컴포넌트에 `props`로 전달합니다.
+    -   **Next.js 웹 어댑터:** Next.js의 API 라우트를 호출하여 서버와 통신하고, `useState`, `useEffect` 같은 React 훅을 사용해 상태를 관리하며 UI 컴포넌트에 `props`를 전달합니다.
+
+---
+
+#### 3. 공통 UI 라이브러리 프로젝트 구조 (Monorepo)
+
+프로젝트 루트에 `packages` 디렉토리를 생성하여 모노레포 구조로 전환하는 것을 제안합니다.
+
+```
+windwalker/
+├── packages/
+│   └── ui-core/                  # 🔵 공통 UI 라이브러리
+│       ├── package.json
+│       ├── src/
+│       │   ├── components/
+│       │   │   ├── AIChatPanel.tsx
+│       │   │   └── PreviewPanel.tsx
+│       │   └── index.ts          # 컴포넌트 export
+│       └── tsconfig.json
+│
+├── src/                          # Next.js 앱 (프로토타이핑 모드)
+│   ├── app/
+│   └── components/
+│       └── PrototypingView.tsx     # 웹 어댑터 역할
+│
+├── extensions/                   # VS Code 확장 (코드 모드)
+│   ├── windwalker-ext/
+│   │   ├── package.json
+│   │   └── src/
+│   │       └── AIChatViewProvider.ts # 확장 어댑터 역할
+│   └── ...
+│
+└── package.json                  # 루트 package.json (workspaces 설정)
+```
+
+-   `packages/ui-core`: AI 채팅, 프리뷰 패널 등 재사용 가능한 모든 UI 컴포넌트가 위치합니다.
+-   Next.js 앱과 VS Code 확장은 모두 `package.json`을 통해 `ui-core` 패키지를 의존성으로 추가합니다.
+
+---
+
+#### 4. 핵심 구현 코드 예시
+
+##### 4.1. 공통 UI 컴포넌트 (`packages/ui-core/src/components/AIChatPanel.tsx`)
+
+```tsx
+// [의도] AI 채팅 UI를 렌더링하고 사용자 입력을 상위로 전달합니다.
+// [책임] 상태 관리나 API 호출을 하지 않고, 순수하게 UI 표현에만 집중합니다.
+
+import React from 'react';
+
+// 메시지 타입 정의
+export interface ChatMessage {
+  sender: 'user' | 'ai' | 'system';
+  content: string;
+}
+
+// 컴포넌트 Props 정의
+export interface AIChatPanelProps {
+  messages: ChatMessage[];
+  onSendMessage: (message: string) => void;
+  isLoading: boolean;
+}
+
+export const AIChatPanel: React.FC<AIChatPanelProps> = ({ messages, onSendMessage, isLoading }) => {
+  const [inputValue, setInputValue] = React.useState('');
+
+  const handleSend = () => {
+    if (inputValue.trim()) {
+      onSendMessage(inputValue);
+      setInputValue('');
+    }
+  };
+
+  return (
+    <div>
+      <div className="message-list">
+        {messages.map((msg, index) => (
+          <div key={index} className={`message ${msg.sender}`}>
+            {msg.content}
+          </div>
+        ))}
+        {isLoading && <div className="message system">AI가 생각 중...</div>}
+      </div>
+      <div className="input-area">
+        <input
+          type="text"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+          disabled={isLoading}
+        />
+        <button onClick={handleSend} disabled={isLoading}>전송</button>
+      </div>
+    </div>
+  );
+};
+```
+
+##### 4.2. 프로토타이핑 모드 어댑터 (`src/components/PrototypingView.tsx`)
+
+```tsx
+// [의도] 웹 환경에서 AI 채팅 패널을 사용합니다.
+// [책임] React의 상태(useState)와 API(fetch)를 사용하여 비즈니스 로직을 처리합니다.
+
+import { AIChatPanel, ChatMessage } from 'ui-core/components/AIChatPanel';
+import { useState, useEffect } from 'react';
+
+export function PrototypingView() {
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSendMessage = async (message: string) => {
+    setIsLoading(true);
+    const newMessages = [...messages, { sender: 'user', content: message }];
+    setMessages(newMessages);
+
+    // Next.js API Route 호출
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      body: JSON.stringify({ message }),
+    });
+    const result = await response.json();
+
+    setMessages([...newMessages, { sender: 'ai', content: result.reply }]);
+    setIsLoading(false);
+  };
+
+  return (
+    <AIChatPanel
+      messages={messages}
+      onSendMessage={handleSendMessage}
+      isLoading={isLoading}
+    />
+  );
+}
+```
+
+##### 4.3. 코드 모드 어댑터 (VS Code 확장 - `AIChatViewProvider.ts` 일부)
+
+```typescript
+// [의도] VS Code 확장 환경에서 AI 채팅 패널을 사용합니다.
+// [책임] VS Code API와 통신하여 비즈니스 로직을 처리합니다.
+
+import * as vscode from 'vscode';
+// React 컴포넌트를 웹뷰 HTML로 변환하는 로직 필요 (예: esbuild)
+import { renderToString } from 'react-dom/server';
+import { AIChatPanel } from 'ui-core/components/AIChatPanel';
+
+export class AIChatViewProvider implements vscode.WebviewViewProvider {
+  resolveWebviewView(webviewView: vscode.WebviewView) {
+    // ... 웹뷰 설정 ...
+
+    // 메시지 핸들링
+    webviewView.webview.onDidReceiveMessage(async (message) => {
+      if (message.command === 'sendMessage') {
+        // VS Code의 파일 시스템 접근 또는 RAG API 호출
+        const reply = await this.callRagApi(message.text);
+
+        // UI 업데이트 메시지 전송
+        webviewView.webview.postMessage({ command: 'aiReply', text: reply });
+      }
+    });
+
+    // 초기 UI 렌더링
+    // 실제 구현에서는 상태를 관리하고 postMessage로 업데이트해야 함
+    const reactComponentHtml = renderToString(
+      <AIChatPanel messages={[]} onSendMessage={() => {}} isLoading={false} />
+    );
+    webviewView.webview.html = `... ${reactComponentHtml} ...`;
+  }
+
+  private async callRagApi(text: string): Promise<string> {
+    // ...
+    return "코드베이스를 분석한 AI의 답변입니다.";
+  }
+}
+```
+
+---
+
+#### 5. UI 레이아웃 전환
+
+-   **프로토타이핑 모드:** `src/app/page.tsx`가 메인 레이아웃을 담당합니다. 좌측에 AI 채팅 패널, 우측에 프리뷰 패널을 배치하는 그리드 시스템을 구현합니다.
+-   **코드 모드:** VS Code의 "View Container"와 "WebviewView" API를 사용합니다. `package.json`의 `contributes` 섹션에 `views`를 정의하여, VS Code의 사이드바에 'WindWalker'라는 이름의 뷰 컨테이너를 만들고, 그 안에 AI 채팅과 프리뷰 웹뷰를 등록합니다.
+
+---
+
+#### 6. 구현 일정 (제안)
+
+-   **Week 1: 아키텍처 설정**
+    -   모노레포 구조 설정 (`packages/ui-core` 생성)
+    -   `ui-core`에 `AIChatPanel` 기본 컴포넌트 구현
+    -   Next.js 앱에서 `AIChatPanel`을 임시 데이터로 렌더링 (프로토타이핑 모드)
+-   **Week 2-3: 프로토타이핑 모드 기능 구현**
+    -   Next.js API 라우트 (`/api/chat`) 구현
+    -   `PrototypingView.tsx`에서 상태 관리 및 API 연동 완료
+    -   `PreviewPanel` 컴포넌트 및 `iframe` 연동 구현
+-   **Week 4: 코드 모드 기능 구현**
+    -   VS Code 확장 프로젝트(`windwalker-ext`) 설정
+    -   `AIChatViewProvider` 구현 및 웹뷰에 `AIChatPanel` 렌더링
+    -   `postMessage`를 통한 웹뷰와 확장 간의 통신 구현
 
 
 ### Phase 3: RAG 시스템 통합 (3-4주)
