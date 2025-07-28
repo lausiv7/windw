@@ -17,11 +17,11 @@
     "views": {
       "panel": [
         {
-          "id": "windwalker.aiChat",
+          "id": "windwalker.panel.aiChat",
           "name": "AI Assistant"
         },
         {
-          "id": "windwalker.preview",
+          "id": "windwalker.panel.preview",
           "name": "Live Preview"
         }
       ]
