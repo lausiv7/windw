@@ -10,8 +10,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onView:windwalker.aiChat",
-    "onView:windwalker.preview"
+    "onStartupFinished"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -19,13 +18,11 @@
       "panel": [
         {
           "id": "windwalker.aiChat",
-          "name": "AI Assistant",
-          "type": "webview"
+          "name": "AI Assistant"
         },
         {
           "id": "windwalker.preview",
-          "name": "Live Preview",
-          "type": "webview"
+          "name": "Live Preview"
         }
       ]
     },
