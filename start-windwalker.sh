@@ -2,8 +2,7 @@
 echo "🚀 WindWalker Code-Server 시작 중..."
 
 # Code-Server 포그라운드 실행
-# --user-data-dir와 --extensions-dir 옵션을 제거하여 code-server가 기본 경로를 사용하도록 합니다.
-# setup 스크립트에서 심볼릭 링크를 생성했으므로, 이제 기본 경로에서 우리 확장을 찾을 수 있습니다.
+# 모든 경로에서 ~ 대신 $HOME을 사용하여 경로 해석 오류를 방지합니다.
 $HOME/.local/bin/code-server --bind-addr 0.0.0.0:8081 \
            --auth none \
            --log debug \
