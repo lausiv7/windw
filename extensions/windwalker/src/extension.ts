@@ -11,52 +11,12 @@ import * as vscode from 'vscode';
 export function activate(context: vscode.ExtensionContext) {
     console.log('WindWalker Extension 활성화');
     
-    // 핵심 매니저들 초기화 (추후 구현)
-    // const modeManager = new ModeManager();
-    // const fileManager = new FileManager(context);
-    // const buildManager = new BuildManager(context);
-    // const webViewManager = new WebViewManager(context);
-    // const messageBridge = new MessageBridge();
-    
-    // WebView들 등록 (추후 구현)
-    // const chatProvider = webViewManager.createChatProvider();
-    // const previewProvider = webViewManager.createPreviewProvider();
-    
-    // Message Bridge 설정 (추후 구현)
-    // messageBridge.setupCommunication(chatProvider, previewProvider, {
-    //     fileManager,
-    //     buildManager,
-    //     modeManager
-    // });
-    
     // 명령어 등록 (예시)
     const helloCommand = vscode.commands.registerCommand('windwalker.helloWorld', () => {
         vscode.window.showInformationMessage('안녕하세요! WindWalker입니다.');
     });
     
     context.subscriptions.push(helloCommand);
-
-    /*
-    const commands = [
-        vscode.commands.registerCommand('windwalker.switchMode', () => {
-            const currentMode = modeManager.getCurrentMode();
-            const newMode = currentMode === WindWalkerMode.CODE 
-                ? WindWalkerMode.PROTOTYPE 
-                : WindWalkerMode.CODE;
-            modeManager.switchMode(newMode);
-        }),
-        
-        vscode.commands.registerCommand('windwalker.openChat', () => {
-            chatProvider.show();
-        }),
-        
-        vscode.commands.registerCommand('windwalker.openPreview', () => {
-            previewProvider.show();
-        })
-    ];
-    
-    context.subscriptions.push(...commands);
-    */
 }
 
 export function deactivate() {}

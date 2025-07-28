@@ -12,51 +12,33 @@ else
     echo "📦 Code-Server가 이미 설치되어 있습니다."
 fi
 
-# 2. Node.js 환경 확인
+# 2. Node.js 환경 확인 (이미 설치되어 있을 가능성이 높음)
 if ! command -v node &> /dev/null; then
-    echo "Node.js 설치 중..."
-    curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-    sudo apt-get install -y nodejs
+    echo "Node.js를 찾을 수 없습니다. Firebase Studio 환경에 포함되어 있는지 확인하세요."
 fi
 
-# 3. VS Code 설정 및 확장 프로그램 디렉토리 생성
-echo "📁 워크스페이스 설정..."
-mkdir -p $HOME/.local/share/code-server/User
-mkdir -p $HOME/.local/share/code-server/extensions
+# 3. code-server가 확장을 찾는 실제 경로 생성
+# 로그에서 확인된 잘못된 경로를 그대로 사용합니다.
+echo "📁 잘못된 경로에 확장 디렉토리 생성..."
+mkdir -p "$HOME/studio/$HOME/.local/share/code-server/extensions"
 
 # 4. 개발용 확장을 링크하여 code-server가 인식하도록 설정
 echo "🔗 개발용 확장 링크 설정..."
 # ln -sfn [실제 확장 소스 경로] [code-server가 바라보는 확장 경로]
-ln -sfn $HOME/studio/extensions/windwalker $HOME/.local/share/code-server/extensions/windwalker
+ln -sfn "$HOME/studio/extensions/windwalker" "$HOME/studio/$HOME/.local/share/code-server/extensions/windwalker"
 
-# 5. 필수 VS Code 확장 설치
-echo "🔌 VS Code 확장 설치..."
-$HOME/.local/bin/code-server --install-extension ms-vscode.vscode-typescript-next --force
-$HOME/.local/bin/code-server --install-extension esbenp.prettier-vscode --force
-$HOME/.local/bin/code-server --install-extension bradlc.vscode-tailwindcss --force
 
-# 6. 시작 스크립트 생성 (이 파일은 변경되지 않음)
-cat > ./start-windwalker.sh << 'EOF'
-#!/bin/bash
-echo "🚀 WindWalker Code-Server 시작 중..."
-
-# Code-Server 포그라운드 실행
-# 모든 경로에서 ~ 대신 $HOME을 사용하여 경로 해석 오류를 방지합니다.
-$HOME/.local/bin/code-server --bind-addr 0.0.0.0:8081 \
-           --auth none \
-           --log debug \
-           $HOME/studio
-
-echo "🔴 WindWalker Code-Server가 종료되었습니다."
-EOF
-
-chmod +x ./start-windwalker.sh
+# 5. 필수 VS Code 확장 설치 (필요시 주석 해제)
+# echo "🔌 VS Code 확장 설치..."
+# $HOME/.local/bin/code-server --install-extension ms-vscode.vscode-typescript-next --force
+# $HOME/.local/bin/code-server --install-extension esbenp.prettier-vscode --force
+# $HOME/.local/bin/code-server --install-extension bradlc.vscode-tailwindcss --force
 
 echo ""
 echo "🎉 Firebase Studio용 WindWalker 설정 완료!"
 echo ""
 echo "📋 다음 단계:"
-echo "1. 이 터미널에서 'source ~/.bashrc'를 실행하여 환경을 리로드하세요 (필요시)."
-echo "2. './start-windwalker.sh'를 실행하여 Code-Server를 시작하세요."
-echo "3. Firebase Studio에서 포트 8081을 열어주세요."
+echo "1. 이 터미널에서 './start-windwalker.sh'를 실행하여 Code-Server를 시작하세요."
+echo "2. Firebase Studio에서 포트 8081을 열어주세요."
+echo "3. Code-Server 접속 후, Ctrl+Shift+P로 'WindWalker: Hello World' 명령어가 보이는지 확인하세요."
 echo ""
