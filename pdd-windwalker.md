@@ -80,65 +80,87 @@ WindWalker는 아이디어 구상과 실제 작동하는 결과물 사이의 장
 
 # 🏛️ 3. 시스템 구조
 
-## 3.1 전체 시스템 구조
+## 3.1 전체 시스템 구조: VS Code 확장을 '허브'로 사용하는 이유
 
-WindWalker는 사용자가 상호작용하는 **Next.js App Shell**을 중심으로, 그 안에 **Code-Server(IDE)**를 `iframe`으로 품고 있습니다. VS Code 확장(`WindWalker Extension`)은 이 IDE 내에서 AI 채팅, 프리뷰, 배포 등의 기능을 담당하며, 필요한 백엔드 서비스(RAG, Deploy 등)와 통신하는 허브 역할을 합니다.
+WindWalker의 아키텍처에서 **VS Code 확장(WindWalker Extension)**은 단순한 추가 기능이 아닌, 시스템의 모든 개발 관련 작업을 조율하는 **중앙 허브(Central Hub) 또는 오케스트레이터(Orchestrator)** 역할을 수행합니다.
+
+-   **전문적인 설명:** VS Code는 파일 시스템 접근, 터미널 명령어 실행, 소스 코드 분석(LSP), 디버깅 등 로컬 개발 환경과 상호작용할 수 있는 강력하고 안정적인 API 집합을 제공합니다. WindWalker 확장은 이 API들을 활용하여 **사용자 인터페이스(Webview 패널)와 실제 개발 작업(코드 수정, 빌드, 검색) 사이를 연결하는 '브리지(Bridge)'** 역할을 수행합니다. AI 채팅창에서 "파일 찾아줘"라는 요청이 오면, 확장은 VS Code의 파일 API를 호출합니다. "코드 실행해줘"라는 요청이 오면, 확장은 터미널 API를 사용합니다. 이러한 로직을 확장 프로그램에 중앙화함으로써, 우리는 각 기능(채팅, 프리뷰, 배포)이 개별적으로 파일 시스템이나 터미널을 제어할 필요 없이, 확장에게 **"작업을 위임"** 할 수 있습니다. 이는 **관심사의 분리(Separation of Concerns)** 원칙을 따르는 효율적인 설계입니다.
 
 ```mermaid
-graph TB
-    subgraph "브라우저 (windwalker.com)"
-        A[사용자] --> B[Next.js App Shell]
-        B -- "Iframe (Code Mode)" --> C[Code-Server]
-        B -- "Iframe (Preview Mode)" --> J[Preview Server]
+graph TD
+    subgraph "UI Layer (Webviews)"
+        A[AI Chat Panel]
+        B[Live Preview Panel]
+        C[Deploy Panel]
     end
-    
-    subgraph "Code-Server 컨테이너 (사용자별 격리)"
-        C --> D[WindWalker VS Code Extension]
-        D --> E[AI Chat Panel Webview]
-        D --> F[Live Preview Panel Webview] 
-        D --> G[Deploy Panel Webview]
+
+    subgraph "중앙 허브 (Central Hub)"
+        D[<b>WindWalker VS Code Extension</b>]
     end
-    
-    subgraph "백엔드 마이크로서비스"
-        H[Code Search/RAG API]
-        I[Build & Preview Service]
-        K[Deploy Service]
-        L[LLM API Gateway]
+
+    subgraph "VS Code Core APIs"
+        E[File System API]
+        F[Terminal API]
+        G[Source Control API]
+        H[Workspace API]
     end
-    
-    subgraph "외부 서비스"
-        M[OpenAI/Claude API]
-        N[GitHub API]
-        O[호스팅 플랫폼<br/>Vercel/Netlify]
+
+    subgraph "Backend Services"
+        I[Code Search/RAG API]
+        J[Build & Preview Service]
+        K[LLM API Gateway]
     end
+
+    A -- "postMessage(메시지 전송)" --> D
+    B -- "postMessage(프리뷰 새로고침)" --> D
+    C -- "postMessage(배포 요청)" --> D
+
+    D -- "VS Code API 호출" --> E
+    D -- "VS Code API 호출" --> F
+    D -- "VS Code API 호출" --> G
+    D -- "VS Code API 호출" --> H
     
-    E -- "postMessage" --> D
-    F -- "postMessage" --> D
-    G -- "postMessage" --> D
-    
-    D -- "API Call" --> H
-    D -- "API Call" --> I
-    D -- "API Call" --> K
-    
-    H -- "Search" --> H
-    H -- "LLM Call via Gateway" --> L
-    L --> M
-    H -- "Code Fetch" --> N
-    
-    I -- "Proxy/Stream" --> F
-    K -- "Deploy" --> O
-    
-    style D fill:#ff9999
-    style H fill:#99ccff
-    style I fill:#99ff99
+    D -- "HTTP 요청" --> I
+    D -- "HTTP 요청" --> J
+    D -- "HTTP 요청" --> K
 ```
+*<center>그림 1: VS Code 확장의 중앙 허브 역할</center>*
 
 ## 3.2 컴포넌트 아키텍처: UI 재사용 전략
 
-**`docs/05 WindWalker 통합 아키텍처- 코드-프로토타이핑 모드 공통화.md`** 문서에 정의된 대로, AI 채팅 패널과 프리뷰 패널은 재사용 가능한 React 컴포넌트로 개발됩니다.
--   **공통 UI 라이브러리 (`ui-core`):** 순수 UI 컴포넌트.
--   **프로토타이핑 모드 어댑터:** Next.js 환경에서 UI 컴포넌트를 사용하고, API 라우트를 통해 백엔드와 통신.
--   **코드 모드 어댑터 (VS Code Extension):** VS Code 환경에서 UI 컴포넌트를 웹뷰로 렌더링하고, `postMessage`와 VS Code API를 통해 백엔드와 통신.
+"프로토타이핑 모드"와 "코드 모드"에서 일관된 사용자 경험을 제공하고 개발 효율을 극대화하기 위해, 우리는 **UI 컴포넌트를 각 모드의 실행 로직과 분리하여 재사용**하는 전략을 채택합니다.
+
+-   **전문적인 설명:** 이 아키텍처는 **"어댑터 패턴(Adapter Pattern)"** 의 변형으로 볼 수 있습니다. **`ui-core`** 라이브러리는 모든 환경(웹, VS Code 웹뷰)에서 재사용 가능한 순수 UI 컴포넌트(View)의 집합입니다. 각 환경은 자신만의 **"어댑터(Adapter)"**를 가집니다. **프로토타이핑 모드**의 어댑터는 React의 `useState`, `useEffect` 훅과 `fetch` API를 사용하여 상태 관리와 서버 통신을 처리합니다. 반면, **코드 모드**의 어댑터(VS Code 확장)는 `postMessage`를 통해 웹뷰와 통신하고 VS Code API를 호출하여 동일한 비즈니스 로직을 수행합니다. 이처럼 View는 공유하되, 그 View를 제어하는 Controller(또는 ViewModel)는 각 환경에 맞게 별도로 구현함으로써, UI의 일관성과 개발 생산성을 모두 달성할 수 있습니다.
+
+```mermaid
+graph TD
+    subgraph "<b>공통 UI 라이브러리 (ui-core)</b>"
+        A[AI Chat Panel UI<br/>(純 React Component)]
+        B[Preview Panel UI<br/>(純 React Component)]
+    end
+
+    subgraph "<b>프로토타이핑 모드 (Next.js 웹)</b>"
+        C["<b>웹 어댑터</b><br/>(useState, fetch API 사용)"] --> A
+        C --> B
+    end
+
+    subgraph "<b>코드 모드 (VS Code 확장)</b>"
+        D["<b>확장 어댑터</b><br/>(postMessage, VS Code API 사용)"] --> A
+        D --> B
+    end
+    
+    subgraph "Backend / 로직"
+        E[API 서버, 파일 시스템 등]
+    end
+    
+    C -- "HTTP/WebSocket" --> E
+    D -- "VS Code API / HTTP" --> E
+
+    style A fill:#D6EAF8
+    style B fill:#D6EAF8
+```
+*<center>그림 2: 어댑터 패턴을 통한 UI 재사용 아키텍처</center>*
+
 
 ## 3.3 보안 구조
 
