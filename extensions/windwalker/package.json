@@ -15,17 +15,8 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "windwalker-sidebar",
-          "title": "WindWalker",
-          "icon": "media/icon.svg"
-        }
-      ]
-    },
     "views": {
-      "windwalker-sidebar": [
+      "panel": [
         {
           "id": "windwalker.aiChat",
           "name": "AI Assistant",
