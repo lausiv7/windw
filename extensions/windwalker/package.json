@@ -9,7 +9,10 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onView:windwalker.aiChat",
+    "onView:windwalker.preview"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "viewsContainers": {
