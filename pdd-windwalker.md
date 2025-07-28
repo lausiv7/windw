@@ -82,14 +82,16 @@ graph TB
 ## 📋 Phase별 상세 구현 가이드
 
 ### Phase 1: Code-Server 기본 환경 ✅
-**목표**: Monaco Editor → VS Code Web 대체
+**목표**: Monaco Editor → VS Code Web 대체 및 단일 사용자 프로토타이핑 환경 구축
 
-- Docker Compose로 Code-Server 실행
-- 기본 템플릿 (React, Next.js) 제공
-- VS Code 네이티브 환경 구축
+- **현재 상태:** Nix 환경에 `code-server`를 직접 설치하여 실행. Next.js 앱에서 `iframe`으로 로드.
+- **아키텍처적 한계:**
+    - **싱글테넌시(Single-Tenancy):** 현재 구조는 단일 사용자 또는 개발자 테스트용입니다. 모든 사용자가 단 하나의 공유된 `code-server` 인스턴스에 접속하므로, 다수의 동시 사용자를 지원할 수 없습니다.
+    - **수동 자원 관리:** `code-server` 프로세스는 Firebase App Hosting의 자동 스케일링 대상이 아니며, 수동으로 실행하고 종료해야 합니다.
+- **의의:** 이 단계는 최종 목표인 멀티테넌트 클라우드 IDE로 나아가기 위한 핵심 기능(VS Code 웹 환경, UI 재사용 아키텍처)을 검증하고 프로토타이핑하는 중요한 과정입니다.
 
 
-#### 1.1 Docker Compose 설정
+#### 1.1 Docker Compose 설정 (최종 목표 아키텍처)
 # docker-compose.yml
 version: '3.8'
 
@@ -596,8 +598,8 @@ export class PreviewProvider implements vscode.WebviewViewProvider {
 }
 ```
 
-### Phase 3: RAG 시스템 통합 (3-4주)
-**목표**: Meilisearch + 완전한 코드베이스 이해 AI
+### Phase 3: RAG 시스템 및 멀티테넌시 통합 (3-4주)
+**목표**: Meilisearch + 완전한 코드베이스 이해 AI, Docker 기반 사용자 환경 격리
 
 #### 3.1 Meilisearch 서버 구축
 ```yaml
