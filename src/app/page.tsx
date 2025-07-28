@@ -12,12 +12,14 @@ export default function Home() {
     // This code runs only on the client side, after the component has mounted.
     // This is to avoid issues with `window` being undefined on the server.
     if (typeof window !== 'undefined') {
-      const currentHost = window.location.hostname;
-      // The assumption is that the Next.js app is running on port 9003
-      // and the code-server is on 8081, proxied by Firebase Studio.
-      // We replace the port prefix in the hostname. e.g., 9003-host.app -> 8081-host.app
-      const ideHost = currentHost.replace(/^[0-9]+-/, '8081-');
-      const url = `https://${ideHost}/?folder=/home/user/studio`;
+      const { protocol, hostname } = window.location;
+      // Construct the URL by replacing the port in the hostname if it exists,
+      // or by specifying it directly for environments like localhost.
+      const ideHost = hostname.includes('localhost')
+        ? `${hostname}:8081`
+        : hostname.replace(/^[0-9]+-/, '8081-');
+
+      const url = `${protocol}//${ideHost}/?folder=/home/user/studio`;
       setIdeUrl(url);
     }
   }, []);
