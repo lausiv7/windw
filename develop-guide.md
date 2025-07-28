@@ -49,3 +49,47 @@ Firebase Studio (Nix 환경) 내에서 Next.js 애플리케이션을 통해 `cod
 Firebase Studio의 Nix 환경은 표준 리눅스 환경과 다른 내부 동작(특히 네트워크 및 프로세스 통신)을 가지고 있어, `code-server`와 같은 복잡한 애플리케이션을 스크립트로 동시에 실행할 때 예측하지 못한 문제가 발생했다. 각 서버를 독립적으로 실행하고, 충돌 가능성이 없는 포트를 사용하며, `code-server`의 옵션을 명시적으로 설정함으로써 문제를 해결할 수 있었다. 이 과정은 향후 환경 설정 및 디버깅에 중요한 참고 자료가 될 것이다.
 
 Firebase Studio용 WindWalker 설정 가이드(최초해볼것).md 문서를 보고, 참조해서 한땀한땀 테스트하면서 설치 및 실행해볼 것. 서버마다 환경설정이 달라서, 보통 해보면 거의 에러가 발생한다. 차근차근 설치하면 된다.
+
+## 날짜: 2025-07-27
+
+### 목표
+WindWalker VS Code 확장의 기본 구조를 설정하고, `code-server`가 확장을 정상적으로 로드하여 하단 패널에 'AI Assistant'와 'Live Preview'를 표시하도록 한다.
+
+---
+
+### 아키텍처: VS Code 확장의 컴파일 및 로드 과정
+
+VS Code 확장은 TypeScript로 개발되지만, 실제 실행 환경인 `code-server`는 JavaScript를 실행합니다. 따라서 다음과 같은 과정이 필수적입니다.
+
+1.  **확장 설계 (`package.json`):** 확장의 이름, 버전, 그리고 가장 중요하게 '어떤 UI를 어디에 추가할 것인지'(`contributes` 속성)를 정의합니다.
+2.  **컴파일 (`.ts` → `.js`):** TypeScript 컴파일러(`tsc`)가 `tsconfig.json` 설정에 따라 `src` 폴더의 모든 `.ts` 파일을 JavaScript로 변환하여 `out` 폴더에 저장합니다.
+3.  **로드 및 실행:** `code-server`는 시작 시 `--extensions-dir` 경로를 스캔하여 유효한 확장(`package.json`과 컴파일된 `out/extension.js`가 있는 폴더)을 찾아 로드하고 실행합니다.
+
+```mermaid
+graph TD
+    subgraph "개발 단계"
+        A[TS 소스 코드<br/>(extensions/windwalker/src)] -- `tsc` 컴파일 --> B[JS 실행 파일<br/>(extensions/windwalker/out)]
+        C[확장 설계도<br/>(extensions/windwalker/package.json)]
+    end
+    
+    subgraph "실행 단계"
+        D[code-server] -- 시작 시 스캔 --> E[확장 폴더<br/>(~/.local/share/code-server/extensions)]
+        E -- 로드 --> F[WindWalker 확장]
+        F -- `package.json`의 `contributes` 참조 --> G[VS Code UI에 패널 추가]
+        F -- `out/extension.js` 실행 --> H[확장 기능 활성화]
+    end
+
+    B -- "설치 (수동 또는 스크립트)" --> E
+    C -- "설치 (수동 또는 스크립트)" --> E
+```
+
+### 주요 작업 내용
+
+-   **`extensions/windwalker/src/`:** `docs/06` 문서에 명시된 모든 `core`, `providers`, `services` 폴더와 TypeScript 파일의 기본 골격(Placeholder)을 생성했습니다.
+-   **`extensions/windwalker/out/extension.js`:** `src/extension.ts`의 컴파일된 결과물을 미리 생성하여 `out` 폴더에 배치했습니다. 이를 통해 `npm run compile` 명령을 직접 실행하지 않아도 `code-server`가 확장을 인식할 수 있도록 했습니다.
+-   **`develop-guide.md`:** 현재 진행 중인 이 컴파일 및 로드 과정에 대한 설명을 개발 일지에 추가하여, 왜 이 과정이 필수적인지를 명확히 기록했습니다.
+
+### 다음 단계
+- `code-server`를 재시작하여 하단 패널에 'AI Assistant'와 'Live Preview' 탭이 정상적으로 나타나는지 확인합니다.
+- 탭이 보인다면, `PreviewProvider.ts`를 구현하여 'Live Preview' 패널에 실제 `iframe`을 렌더링하는 작업을 진행합니다.
+```
