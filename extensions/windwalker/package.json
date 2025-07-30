@@ -19,7 +19,32 @@
         "command": "windwalker.helloWorld",
         "title": "WindWalker: Hello World"
       }
-    ]
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "windwalker",
+          "title": "WindWalker",
+          "icon": "$(terminal)"
+        }
+      ]
+    },
+    "views": {
+      "windwalker": [
+        {
+          "type": "webview",
+          "id": "windwalker.chatView",
+          "name": "AI Chat",
+          "when": "true"
+        },
+        {
+          "type": "webview", 
+          "id": "windwalker.previewView",
+          "name": "Preview",
+          "when": "true"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

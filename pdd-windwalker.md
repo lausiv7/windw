@@ -706,8 +706,21 @@ export class AIChatViewProvider implements vscode.WebviewViewProvider {
     -   `postMessage`를 통한 웹뷰와 확장 간의 통신 구현
 
 
-### Phase 3: RAG 시스템 통합 (3-4주)
+### Phase 3: WebView 통신 아키텍처 완성 (현재 진행중)
+**목표**: MessageBridge 기반 VS Code Extension과 WebView 간 완전한 통신 구조 구축
+**상태**: ✅ Phase 1-2 완료, Phase 3-4 진행중
+
+### Phase 4: 기본 AI 서비스 연동 (간소화)
+**목표**: 직접 LLM API 연동을 통한 기본 AI 채팅 기능 구현
+**상태**: 🔄 계획됨
+
+### Phase 5: 프로토타이핑 모드 구현
+**목표**: Next.js 웹앱에서 AI 채팅패널 + 프리뷰 구현
+**상태**: 🔄 계획됨
+
+### Phase 6: RAG 시스템 통합 (향후 구현 예정)
 **목표**: Meilisearch + 완전한 코드베이스 이해 AI
+**상태**: 📋 구현 예정 (인증 시스템 이후)
 
 #### 3.1 Meilisearch 서버 구축
 ```yaml

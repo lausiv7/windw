@@ -3,18 +3,21 @@
 
 import * as vscode from 'vscode';
 import { ChatWebViewProvider } from './providers/ChatWebViewProvider';
+import { PreviewWebViewProvider } from './providers/PreviewWebViewProvider';
 
 export function activate(context: vscode.ExtensionContext) {
     // 확장이 성공적으로 활성화되었음을 명확히 알리는 로그 및 정보 메시지
     console.log('🎉 Congratulations, WindWalker extension is now active!');
     vscode.window.showInformationMessage('WindWalker is now active!');
 
-    // 1. WebView 공급자(Provider) 생성 및 등록 (Phase 2: MessageBridge 연동)
+    // 1. WebView 공급자(Provider) 생성 및 등록 (Phase 2-3: MessageBridge 연동)
     const chatProvider = new ChatWebViewProvider(context.extensionUri, context);
+    const previewProvider = new PreviewWebViewProvider(context.extensionUri, context);
 
-    // 2. 'windwalker.chatView'라는 ID를 가진 웹뷰를 VS Code 창에 등록
+    // 2. WebView들을 VS Code 창에 등록
     context.subscriptions.push(
-        vscode.window.registerWebviewViewProvider(ChatWebViewProvider.viewType, chatProvider)
+        vscode.window.registerWebviewViewProvider(ChatWebViewProvider.viewType, chatProvider),
+        vscode.window.registerWebviewViewProvider(PreviewWebViewProvider.viewType, previewProvider)
     );
 }
 

@@ -47,6 +47,11 @@ export class MessageBridge {
         // Code generation operations
         this.messageHandlers.set('code:generate', this.handleCodeGenerate.bind(this));
         this.messageHandlers.set('code:apply', this.handleCodeApply.bind(this));
+
+        // Preview operations  
+        this.messageHandlers.set('preview:ready', this.handlePreviewReady.bind(this));
+        this.messageHandlers.set('preview:reload', this.handlePreviewReload.bind(this));
+        this.messageHandlers.set('preview:changeUrl', this.handlePreviewChangeUrl.bind(this));
     }
 
     // Main message processing method
@@ -217,6 +222,43 @@ export class MessageBridge {
             type: 'error',
             data: 'Could not parse filename from command. Try: "Create file MyComponent.tsx"'
         };
+    }
+
+    // Preview handlers
+    private async handlePreviewReady(message: WindWalkerMessage): Promise<any> {
+        console.log('[MessageBridge] Preview WebView is ready');
+        return {
+            type: 'system:info',
+            data: 'Preview panel ready. Waiting for build server...'
+        };
+    }
+
+    private async handlePreviewReload(message: WindWalkerMessage): Promise<any> {
+        console.log('[MessageBridge] Preview reload requested');
+        // 실제로는 PreviewWebViewProvider에서 직접 처리하므로 확인 메시지만 반환
+        return {
+            type: 'preview:reloaded',
+            data: { success: true, timestamp: Date.now() }
+        };
+    }
+
+    private async handlePreviewChangeUrl(message: WindWalkerMessage): Promise<any> {
+        const { url } = message.data;
+        console.log(`[MessageBridge] Preview URL change requested: ${url}`);
+        
+        // URL 유효성 검사
+        try {
+            new URL(url);
+            return {
+                type: 'preview:urlChanged',
+                data: { success: true, url, timestamp: Date.now() }
+            };
+        } catch (error) {
+            return {
+                type: 'error',
+                data: `Invalid URL: ${url}`
+            };
+        }
     }
 
     private generateSimpleCode(prompt: string, language: string): string {

@@ -92,4 +92,42 @@ graph TD
 ### 다음 단계
 - `code-server`를 재시작하여 하단 패널에 'AI Assistant'와 'Live Preview' 탭이 정상적으로 나타나는지 확인합니다.
 - 탭이 보인다면, `PreviewProvider.ts`를 구현하여 'Live Preview' 패널에 실제 `iframe`을 렌더링하는 작업을 진행합니다.
+
+---
+
+## 날짜: 2025-07-30
+
+### WindWalker Phase 2-3 구현 완료 및 구현 계획 업데이트
+
+#### 주요 성과
+- ✅ **Phase 2 완료**: MessageBridge 기반 파일시스템 통합 (FileManager, BuildManager, ChatWebViewProvider)
+- ✅ **GitHub 푸시 성공**: 외부 저장소 https://github.com/lausiv7/windw 에 Phase 2 구현 완료
+- 🔄 **Phase 3 진행중**: PreviewWebViewProvider 구현 시작
+
+#### 구현 계획 문서 업데이트
+- **08 구현계획 문서 업데이트**: 
+  - Phase 4 간소화: RAG → 단순 LLM API 연동으로 변경
+  - **Phase 5 추가**: Next.js 프로토타이핑 모드 구현 계획 추가
+  - RAG 고급 기능들은 "구현 예정" 상태로 표시
+
+- **헌법 문서 업데이트**:
+  - 개발 로드맵 재정리: Phase 3 (현재), Phase 4-5 (계획), Phase 6 RAG (향후 구현 예정)
+  - 인증 시스템 이후 RAG 구현 일정으로 조정
+
+#### 현재 작업 상황
+- **PreviewWebViewProvider.ts**: VS Code 확장용 프리뷰 WebView 구현 완료
+- **다음 작업**: webview/preview/ 폴더의 script.js, style.css 구현
+- **목표**: Phase 3 완료 후 자동 수리 루프로 검증
+
+#### 헌법 준수 사항 확인
+- ✅ 문서 수정 시 기존 내용 보존 (삭제 대신 "구현 예정" 표시)
+- ✅ 헌법 기준 MessageBridge 아키텍처 준수
+- ✅ 명시적 의도 주석 작성 (`[의도]`, `[책임]` 형식)
+- ✅ 개발일지 및 헌법 문서 동시 업데이트
+
+#### 기술적 세부사항
+- PreviewWebViewProvider: localhost:9003 iframe 로드, 자동 새로고침 지원
+- 프리뷰 상태 확인 기능 (fetch HEAD 요청)
+- URL 변경 및 수동 새로고침 UI 포함
+- CSP 설정으로 보안 강화 (`frame-src http: https:`)
 ```

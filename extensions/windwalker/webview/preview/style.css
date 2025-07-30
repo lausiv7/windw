@@ -1,0 +1,259 @@
+/* [의도] 프리뷰 WebView의 스타일을 정의합니다.
+   [책임] iframe 레이아웃, 헤더 UI, 로딩/에러 오버레이, 상태 표시기 등의 모든 시각적 요소 스타일링 */
+
+/* VS Code 다크 테마 기본 색상 */
+:root {
+    --vscode-foreground: #cccccc;
+    --vscode-background: #1e1e1e;
+    --vscode-button-background: #0e639c;
+    --vscode-button-foreground: #ffffff;
+    --vscode-button-hover-background: #1177bb;
+    --vscode-input-background: #3c3c3c;
+    --vscode-input-border: #3c3c3c;
+    --vscode-border: #3c3c3c;
+    --vscode-success-color: #4caf50;
+    --vscode-error-color: #f44336;
+    --vscode-warning-color: #ff9800;
+}
+
+/* 전체 컨테이너 */
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 13px;
+    color: var(--vscode-foreground);
+    background: var(--vscode-background);
+    height: 100%;
+    overflow: hidden;
+}
+
+#preview-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100%;
+}
+
+/* 헤더 영역 */
+#preview-header {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    background: var(--vscode-background);
+    border-bottom: 1px solid var(--vscode-border);
+    flex-shrink: 0;
+    gap: 8px;
+}
+
+#url-bar {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    gap: 8px;
+}
+
+#url-input {
+    flex: 1;
+    padding: 4px 8px;
+    background: var(--vscode-input-background);
+    border: 1px solid var(--vscode-input-border);
+    color: var(--vscode-foreground);
+    border-radius: 2px;
+    font-size: 12px;
+    outline: none;
+}
+
+#url-input:focus {
+    border-color: var(--vscode-button-background);
+}
+
+#reload-button {
+    padding: 4px 8px;
+    background: var(--vscode-button-background);
+    color: var(--vscode-button-foreground);
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    font-size: 14px;
+    min-width: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#reload-button:hover {
+    background: var(--vscode-button-hover-background);
+}
+
+#reload-button:active {
+    transform: scale(0.95);
+}
+
+/* 상태 표시기 */
+#status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #666;
+    flex-shrink: 0;
+}
+
+.status-success {
+    background: var(--vscode-success-color) !important;
+}
+
+.status-loading {
+    background: var(--vscode-warning-color) !important;
+    animation: pulse 1.5s infinite;
+}
+
+.status-error {
+    background: var(--vscode-error-color) !important;
+}
+
+.status-unknown {
+    background: #666 !important;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* 프리뷰 컨텐츠 영역 */
+#preview-content {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+#preview-frame {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: #fff;
+}
+
+/* 로딩 오버레이 */
+#loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(30, 30, 30, 0.9);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    z-index: 1000;
+}
+
+.loading-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid #333;
+    border-top: 3px solid var(--vscode-button-background);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+#loading-overlay p {
+    margin: 0;
+    color: var(--vscode-foreground);
+    font-size: 14px;
+}
+
+/* 에러 오버레이 */
+#error-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(30, 30, 30, 0.95);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1001;
+    padding: 40px;
+    text-align: center;
+}
+
+.error-message {
+    max-width: 400px;
+}
+
+.error-message h3 {
+    color: var(--vscode-error-color);
+    margin: 0 0 16px 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.error-message p {
+    color: var(--vscode-foreground);
+    margin: 0 0 24px 0;
+    line-height: 1.4;
+}
+
+#error-url {
+    font-family: 'Courier New', monospace;
+    color: var(--vscode-button-background);
+    font-weight: bold;
+}
+
+#retry-button {
+    padding: 8px 16px;
+    background: var(--vscode-button-background);
+    color: var(--vscode-button-foreground);
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+#retry-button:hover {
+    background: var(--vscode-button-hover-background);
+}
+
+/* 반응형 조정 */
+@media (max-width: 300px) {
+    #preview-header {
+        padding: 6px 8px;
+    }
+    
+    #url-input {
+        font-size: 11px;
+    }
+    
+    .error-message {
+        padding: 20px;
+    }
+}
+
+/* 스크롤바 스타일 (VS Code 스타일 맞춤) */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--vscode-background);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #777;
+}
