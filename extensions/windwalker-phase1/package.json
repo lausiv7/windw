@@ -1,0 +1,49 @@
+{
+  "name": "windwalker-phase1",
+  "displayName": "WindWalker Phase 1",
+  "description": "Simple WindWalker - Phase 1",
+  "version": "0.1.0",
+  "publisher": "windwalker",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "*"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "windwalker.helloWorld",
+        "title": "WindWalker: Hello World"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "windwalker",
+          "title": "WindWalker",
+          "icon": "$(terminal)"
+        }
+      ]
+    },
+    "views": {
+      "windwalker": [
+        {
+          "id": "windwalker.welcome",
+          "name": "Welcome",
+          "when": "true"
+        },
+        {
+          "type": "webview",
+          "id": "windwalker.chatView",
+          "name": "AI Chat",
+          "when": "true"
+        }
+      ]
+    }
+  }
+}

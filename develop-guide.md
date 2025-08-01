@@ -1,5 +1,39 @@
 # WindWalker IDE 개발일지
 
+## 📚 최신 업데이트 (2025-08-01)
+
+### 🧪 테스트 리페어 루프 시스템 구현 완료
+
+WindWalker 프로젝트를 위한 고도화된 테스트 자동화 시스템을 완성했습니다.
+
+#### 📁 새로 추가된 문서
+- **`docs/21 테스트 리페어 루프 설계 및 구현.md`**: 완전한 시스템 설계서 및 구현 가이드
+- **`pdd-windwalker.md`**: 로드맵에 테스트 자동화 모듈화 계획 추가 (중요도: 낮음)
+
+#### 🚀 구현된 핵심 기능
+1. **3가지 테스트 모드**: 반자동/자동복구/대화형
+2. **Diff 기반 수정 제안**: Git diff 형태로 변경사항 시각화
+3. **지능형 실패 분석**: 타임아웃, 셀렉터, 연결 등 자동 분류
+4. **테스트 세트 자동 생성**: Playwright codegen 완전 통합
+5. **브라우저 테스트 선택 UI**: HTML 기반 대화형 선택기
+6. **자동 문서화 & GitHub 연동**: 테스트 결과 자동 커밋/푸시
+
+#### 📊 시스템 파일 구조
+```
+test-auto-repair/
+├── auto-repair-loop.js (390줄)          # 메인 자동화 루프
+├── diff-repair-system.js (300줄)        # Diff 기반 수정 시스템  
+├── auto-documentation.js (280줄)        # 자동 문서화 시스템
+├── test-generator.js (250줄)            # 테스트 자동 생성기
+├── windwalker-test-suite.sh (250줄)     # 통합 실행 스크립트
+└── TESTING_GUIDE.md (400줄)            # 완전한 사용 가이드
+```
+
+#### 🎯 향후 계획
+WindWalker 시범 운영 후 안정성이 검증되면, 이 시스템을 범용 모듈(`@windwalker/test-repair-loop`)로 전환하여 다른 프로젝트에서도 사용할 수 있도록 개발할 예정입니다.
+
+---
+
 ## 날짜: 2025-07-26
 
 ### 목표
@@ -130,4 +164,77 @@ graph TD
 - 프리뷰 상태 확인 기능 (fetch HEAD 요청)
 - URL 변경 및 수동 새로고침 UI 포함
 - CSP 설정으로 보안 강화 (`frame-src http: https:`)
+
+---
+
+## 날짜: 2025-07-30 (야간)
+
+### WindWalker Phase 1 수동 테스트 및 확장 아이콘 문제 해결
+
+#### 배경
+- 대화 세션이 길어져 자동으로 새 대화로 분할됨
+- Phase 4까지 구현 완료 상태에서 WindWalker 확장 아이콘이 보이지 않는 문제 발생
+
+#### 문제 분석 과정
+1. **확장 매니페스트 확인**: `package.json` 설정 정상
+2. **TypeScript 컴파일 오류 발견**: 14개의 `'error' is of type 'unknown'` 오류
+3. **Code Server 환경 이슈**: 확장 디렉토리 및 실행 옵션 문제
+
+#### 해결 과정
+
+##### 1. TypeScript 오류 수정
+- **Task 도구**를 통해 14개 오류 모두 자동 수정
+- **적용 패턴**: `const errorMessage = error instanceof Error ? error.message : String(error);`
+- **수정 파일들**:
+  - `src/core/BuildManager.ts` (4개)
+  - `src/core/FileManager.ts` (4개)  
+  - `src/core/MessageBridge.ts` (2개)
+  - `src/providers/ChatWebViewProvider.ts` (1개)
+  - `src/providers/PreviewWebViewProvider.ts` (1개)
+
+##### 2. windwalker vs windwalker-phase1 선택
+- **windwalker-phase1**: 단순한 검증된 버전, 즉시 활성화 (`activationEvents: ["*"]`)
+- **windwalker**: 복잡한 Phase 4 구현, TypeScript 컴파일 필요
+- **결정**: windwalker-phase1으로 먼저 테스트
+
+##### 3. Code Server 실행 문제 해결
+**문제들**:
+- 즉시 종료 (버전 충돌, 경로 문제)
+- IPC Hook 충돌 (`VSCODE_IPC_HOOK_CLI`)
+- **핵심 문제**: 필수 실행 옵션 누락
+
+**최종 해결책**:
+```bash
+unset VSCODE_IPC_HOOK_CLI
+code-server --bind-addr 0.0.0.0:8082 \
+           --user-data-dir $HOME/.local/share/code-server \
+           --extensions-dir $HOME/.local/share/code-server/extensions \
+           --disable-telemetry \
+           --auth none \
+           $HOME/studio
+```
+
+#### 성공 결과
+- ✅ WindWalker 아이콘 사이드바 표시
+- ✅ 확장 활성화 메시지 출력
+- ✅ Hello World 명령어 실행 성공
+- ✅ 하단 배너 알림 메시지 표시
+
+#### 핵심 학습 사항
+1. **VS Code 확장 자동 로드**: `package.json` 존재만으로 자동 인식
+2. **Code Server 환경 특이사항**: `--extensions-dir` 옵션 필수
+3. **확장 개발 워크플로우**: 소스 수정 → 확장 디렉토리 복사 → 브라우저 새로고침
+
+#### 구현된 추가 기능
+1. **Playwright 테스트 자동화**: Phase 1 E2E 테스트 시나리오
+2. **Auto-Repair Loop**: 테스트 실패 시 자동 복구 메커니즘
+3. **완전한 문서화**: 개발 과정 및 문제 해결 방법 기록
+
+#### start-windwalker.sh 최종 버전
+- 기존 프로세스 자동 종료
+- IPC Hook 충돌 방지
+- 포트 8082 사용
+- 완전한 필수 옵션 포함
+- 상세한 상태 출력
+
 ```
