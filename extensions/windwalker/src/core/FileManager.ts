@@ -90,11 +90,12 @@ export class FileManager {
 
         } catch (error) {
             console.error(`[FileManager] Error writing file ${relativePath}:`, error);
+            const errorMessage = error instanceof Error ? error.message : String(error);
             
             return {
                 success: false,
                 path: relativePath,
-                error: error.message
+                error: errorMessage
             };
         }
     }
@@ -111,7 +112,8 @@ export class FileManager {
                 throw new Error(`File already exists: ${relativePath}`);
             } catch (error) {
                 // File doesn't exist, which is what we want
-                if (!error.message.includes('already exists')) {
+                const errorMessage = error instanceof Error ? error.message : String(error);
+                if (!errorMessage.includes('already exists')) {
                     // This is expected - file should not exist
                 }
             }
@@ -137,11 +139,12 @@ export class FileManager {
 
         } catch (error) {
             console.error(`[FileManager] Error creating file ${relativePath}:`, error);
+            const errorMessage = error instanceof Error ? error.message : String(error);
             
             return {
                 success: false,
                 path: relativePath,
-                error: error.message
+                error: errorMessage
             };
         }
     }
@@ -188,11 +191,12 @@ export class FileManager {
 
         } catch (error) {
             console.error(`[FileManager] Error deleting file ${relativePath}:`, error);
+            const errorMessage = error instanceof Error ? error.message : String(error);
             
             return {
                 success: false,
                 path: relativePath,
-                error: error.message
+                error: errorMessage
             };
         }
     }
@@ -253,7 +257,8 @@ export class FileManager {
                 throw new Error(`Path exists but is not a directory: ${fullPath}`);
             }
         } catch (error) {
-            if (error.message.includes('not found')) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            if (errorMessage.includes('not found')) {
                 // Directory doesn't exist, create it
                 await vscode.workspace.fs.createDirectory(uri);
                 console.log(`[FileManager] Created directory: ${fullPath}`);

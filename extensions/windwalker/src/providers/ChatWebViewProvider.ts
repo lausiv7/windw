@@ -46,11 +46,12 @@ export class ChatWebViewProvider implements vscode.WebviewViewProvider {
 				
 			} catch (error) {
 				console.error('[ChatWebViewProvider] Error processing message:', error);
+				const errorMessage = error instanceof Error ? error.message : String(error);
 				
 				// Send error response to webview
 				webviewView.webview.postMessage({
 					type: 'error',
-					data: { message: error.message, originalType: data.type },
+					data: { message: errorMessage, originalType: data.type },
 					timestamp: Date.now()
 				});
 			}

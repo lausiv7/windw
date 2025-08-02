@@ -99,12 +99,13 @@ export class BuildManager {
 
         } catch (error) {
             console.error('[BuildManager] Error starting build:', error);
-            this.outputChannel.appendLine(`[ERROR] ${error.message}`);
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            this.outputChannel.appendLine(`[ERROR] ${errorMessage}`);
             
             return {
                 success: false,
                 message: 'Failed to start build',
-                error: error.message
+                error: errorMessage
             };
         }
     }
@@ -146,11 +147,12 @@ export class BuildManager {
 
         } catch (error) {
             console.error('[BuildManager] Error stopping build:', error);
+            const errorMessage = error instanceof Error ? error.message : String(error);
             
             return {
                 success: false,
                 message: 'Failed to stop build',
-                error: error.message
+                error: errorMessage
             };
         }
     }
@@ -171,11 +173,12 @@ export class BuildManager {
 
         } catch (error) {
             console.error('[BuildManager] Error restarting build:', error);
+            const errorMessage = error instanceof Error ? error.message : String(error);
             
             return {
                 success: false,
                 message: 'Failed to restart build',
-                error: error.message
+                error: errorMessage
             };
         }
     }
@@ -247,11 +250,12 @@ export class BuildManager {
 
         } catch (error) {
             console.error('[BuildManager] Error executing command:', error);
+            const errorMessage = error instanceof Error ? error.message : String(error);
             
             return {
                 success: false,
                 message: 'Failed to execute command',
-                error: error.message
+                error: errorMessage
             };
         }
     }
