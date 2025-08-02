@@ -24,6 +24,7 @@ services:
       --user-data-dir /home/coder/.local/share/code-server
       --extensions-dir /home/coder/.local/share/code-server/extensions
       --disable-telemetry
+      --disable-workspace-trust
       --auth none
       /home/coder/workspace
 

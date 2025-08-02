@@ -34,6 +34,7 @@
     - treeitem "dist" [level=1]:  dist
     - treeitem "templates" [level=1]:  templates
     - treeitem "index.html" [level=1]:  index.html
+    - treeitem "login.html" [level=1]:  login.html
     - treeitem "phase5-prototype.html" [level=1]:  phase5-prototype.html
   - button "Outline Section":
     - text: 

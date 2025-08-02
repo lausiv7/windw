@@ -42,6 +42,12 @@
           "id": "windwalker.chatView",
           "name": "AI Chat",
           "when": "true"
+        },
+        {
+          "type": "webview",
+          "id": "windwalker.previewView",
+          "name": "Preview",
+          "when": "true"
         }
       ]
     }

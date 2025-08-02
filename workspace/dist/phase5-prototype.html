@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WindWalker Phase 5 - 프로토타이핑 모드</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.css">
+    <style>
+        .component-card:hover {
+            transform: translateY(-2px);
+            transition: transform 0.2s ease;
+        }
+        .viewport-mobile { max-width: 375px; }
+        .viewport-tablet { max-width: 768px; }
+        .viewport-desktop { max-width: 1200px; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Phase 5 프로토타이핑 인터페이스 -->
+    <div class="h-screen flex flex-col">
+        <!-- 상단 툴바 -->
+        <div class="bg-white border-b p-4 flex justify-between items-center shadow-sm">
+            <div class="flex items-center gap-4">
+                <h1 class="text-xl font-bold text-gray-800">🌪️ WindWalker Prototyping</h1>
+                <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-sm font-medium">Phase 5</span>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <!-- 뷰포트 선택 -->
+                <div class="flex border rounded-lg overflow-hidden bg-gray-100">
+                    <button onclick="setViewport('desktop')" id="btn-desktop" class="px-3 py-2 text-sm bg-blue-500 text-white">
+                        💻 데스크톱
+                    </button>
+                    <button onclick="setViewport('tablet')" id="btn-tablet" class="px-3 py-2 text-sm hover:bg-gray-200">
+                        📱 태블릿
+                    </button>
+                    <button onclick="setViewport('mobile')" id="btn-mobile" class="px-3 py-2 text-sm hover:bg-gray-200">
+                        📱 모바일
+                    </button>
+                </div>
+
+                <!-- 컨트롤 버튼 -->
+                <button onclick="toggleCode()" id="code-btn" class="px-3 py-2 text-sm border rounded-lg hover:bg-gray-100">
+                    📝 코드 보기
+                </button>
+                
+                <button onclick="togglePreview()" id="preview-btn" class="px-3 py-2 text-sm bg-green-500 text-white rounded-lg hover:bg-green-600">
+                    ▶️ 프리뷰
+                </button>
+
+                <button onclick="switchToIDE()" class="px-3 py-2 text-sm border rounded-lg hover:bg-gray-100">
+                    🔧 IDE 모드
+                </button>
+            </div>
+        </div>
+
+        <div class="flex-1 flex">
+            <!-- 사이드바 - 컴포넌트 라이브러리 -->
+            <div class="w-80 bg-white border-r overflow-y-auto">
+                <div class="p-4">
+                    <h2 class="font-semibold mb-4 flex items-center gap-2">
+                        🧩 컴포넌트 라이브러리
+                    </h2>
+                    
+                    <div class="space-y-3">
+                        <!-- 히어로 섹션 -->
+                        <div class="component-card p-3 border rounded-lg cursor-pointer hover:shadow-md" 
+                             onclick="selectComponent('hero')">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="font-medium text-sm">히어로 섹션</h3>
+                                <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">레이아웃</span>
+                            </div>
+                            <p class="text-xs text-gray-600">메인 화면 히어로 섹션</p>
+                        </div>
+
+                        <!-- 네비게이션 -->
+                        <div class="component-card p-3 border rounded-lg cursor-pointer hover:shadow-md" 
+                             onclick="selectComponent('nav')">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="font-medium text-sm">네비게이션</h3>
+                                <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">컴포넌트</span>
+                            </div>
+                            <p class="text-xs text-gray-600">상단 네비게이션 바</p>
+                        </div>
+
+                        <!-- 기능 카드 -->
+                        <div class="component-card p-3 border rounded-lg cursor-pointer hover:shadow-md" 
+                             onclick="selectComponent('card')">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="font-medium text-sm">기능 카드</h3>
+                                <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">컴포넌트</span>
+                            </div>
+                            <p class="text-xs text-gray-600">제품 기능 소개 카드</p>
+                        </div>
+
+                        <!-- 폼 요소 -->
+                        <div class="component-card p-3 border rounded-lg cursor-pointer hover:shadow-md" 
+                             onclick="selectComponent('form')">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="font-medium text-sm">로그인 폼</h3>
+                                <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">폼</span>
+                            </div>
+                            <p class="text-xs text-gray-600">사용자 로그인 폼</p>
+                        </div>
+
+                        <!-- CTA 섹션 -->
+                        <div class="component-card p-3 border rounded-lg cursor-pointer hover:shadow-md" 
+                             onclick="selectComponent('cta')">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="font-medium text-sm">CTA 섹션</h3>
+                                <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">마케팅</span>
+                            </div>
+                            <p class="text-xs text-gray-600">행동 유도 섹션</p>
+                        </div>
+                    </div>
+
+                    <!-- AI 프로토타이핑 섹션 -->
+                    <div class="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
+                        <h3 class="font-semibold text-sm mb-2 flex items-center gap-2">
+                            🤖 AI 프로토타이핑
+                        </h3>
+                        <textarea 
+                            id="ai-input" 
+                            placeholder="AI에게 컴포넌트를 요청하세요... 예: '제품 소개 카드 만들어줘'"
+                            class="w-full p-2 text-sm border rounded resize-none"
+                            rows="2"
+                        ></textarea>
+                        <button onclick="generateWithAI()" class="w-full mt-2 px-3 py-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-600">
+                            AI로 생성하기
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 메인 프리뷰 영역 -->
+            <div class="flex-1 flex">
+                <div class="flex-1 p-6 overflow-auto">
+                    <div id="preview-container" class="mx-auto viewport-desktop transition-all duration-300">
+                        <div class="bg-white rounded-lg shadow-lg min-h-[600px] overflow-hidden">
+                            <!-- 프리뷰 헤더 -->
+                            <div class="bg-gray-100 px-4 py-2 flex items-center gap-2 text-sm text-gray-600">
+                                👁️ 프리뷰 - <span id="viewport-indicator">데스크톱</span>
+                            </div>
+                            
+                            <!-- 프리뷰 콘텐츠 -->
+                            <div id="preview-content" class="p-6">
+                                <div class="text-center py-20 text-gray-500">
+                                    <div class="text-6xl mb-4">🧩</div>
+                                    <h3 class="text-lg font-medium mb-2">Phase 5 프로토타입 시작하기</h3>
+                                    <p>왼쪽에서 컴포넌트를 선택하거나 AI에게 요청하여 프리뷰를 확인하세요</p>
+                                    <div class="mt-4 text-sm text-gray-400">
+                                        ✨ AI 기반 빠른 프로토타이핑<br>
+                                        📱 반응형 디자인 미리보기<br>
+                                        🔧 IDE 모드로 실제 개발
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 코드 패널 -->
+                <div id="code-panel" class="w-96 bg-gray-900 text-gray-100 overflow-auto hidden">
+                    <div class="p-4">
+                        <h3 class="font-semibold mb-4 flex items-center gap-2">
+                            📝 코드 미리보기
+                        </h3>
+                        <pre id="code-content" class="text-sm bg-gray-800 p-4 rounded overflow-x-auto">
+                            <code>컴포넌트를 선택하면 코드가 여기에 표시됩니다.</code>
+                        </pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentViewport = 'desktop';
+        let selectedComponent = null;
+        let codeVisible = false;
+
+        // 컴포넌트 템플릿
+        const components = {
+            hero: {
+                name: '히어로 섹션',
+                html: `
+                    <div class="text-center py-16 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg">
+                        <h1 class="text-4xl font-bold mb-4">WindWalker로 빠른 프로토타이핑</h1>
+                        <p class="text-xl mb-8">AI와 함께 웹 애플리케이션을 빠르게 구축하세요</p>
+                        <button class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                            시작하기
+                        </button>
+                    </div>
+                `,
+                code: `<div class="text-center py-16 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg">
+    <h1 class="text-4xl font-bold mb-4">WindWalker로 빠른 프로토타이핑</h1>
+    <p class="text-xl mb-8">AI와 함께 웹 애플리케이션을 빠르게 구축하세요</p>
+    <button class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+        시작하기
+    </button>
+</div>`
+            },
+            nav: {
+                name: '네비게이션',
+                html: `
+                    <nav class="flex justify-between items-center p-4 bg-white shadow-sm rounded-lg mb-6">
+                        <div class="font-bold text-xl text-blue-600">WindWalker</div>
+                        <div class="flex gap-6">
+                            <a href="#" class="text-gray-600 hover:text-blue-600 transition-colors">홈</a>
+                            <a href="#" class="text-gray-600 hover:text-blue-600 transition-colors">기능</a>
+                            <a href="#" class="text-gray-600 hover:text-blue-600 transition-colors">가격</a>
+                            <a href="#" class="text-gray-600 hover:text-blue-600 transition-colors">문의</a>
+                        </div>
+                        <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                            로그인
+                        </button>
+                    </nav>
+                `,
+                code: `<nav class="flex justify-between items-center p-4 bg-white shadow-sm rounded-lg">
+    <div class="font-bold text-xl text-blue-600">WindWalker</div>
+    <div class="flex gap-6">
+        <a href="#" class="text-gray-600 hover:text-blue-600">홈</a>
+        <a href="#" class="text-gray-600 hover:text-blue-600">기능</a>
+        <a href="#" class="text-gray-600 hover:text-blue-600">가격</a>
+        <a href="#" class="text-gray-600 hover:text-blue-600">문의</a>
+    </div>
+    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg">로그인</button>
+</nav>`
+            },
+            card: {
+                name: '기능 카드',
+                html: `
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="bg-white p-6 rounded-lg shadow-md text-center hover:shadow-lg transition-shadow">
+                            <div class="text-4xl mb-4">🚀</div>
+                            <h3 class="text-xl font-semibold mb-2">빠른 개발</h3>
+                            <p class="text-gray-600">AI 도움으로 더 빠르게 개발하세요</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-md text-center hover:shadow-lg transition-shadow">
+                            <div class="text-4xl mb-4">🎨</div>
+                            <h3 class="text-xl font-semibold mb-2">디자인 시스템</h3>
+                            <p class="text-gray-600">일관된 디자인으로 브랜드 강화</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-md text-center hover:shadow-lg transition-shadow">
+                            <div class="text-4xl mb-4">⚡</div>
+                            <h3 class="text-xl font-semibold mb-2">실시간 프리뷰</h3>
+                            <p class="text-gray-600">변경사항을 즉시 확인하세요</p>
+                        </div>
+                    </div>
+                `,
+                code: `<div class="grid md:grid-cols-3 gap-6">
+    <div class="bg-white p-6 rounded-lg shadow-md text-center">
+        <div class="text-4xl mb-4">🚀</div>
+        <h3 class="text-xl font-semibold mb-2">빠른 개발</h3>
+        <p class="text-gray-600">AI 도움으로 더 빠르게 개발하세요</p>
+    </div>
+    <!-- 추가 카드들... -->
+</div>`
+            },
+            form: {
+                name: '로그인 폼',
+                html: `
+                    <div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
+                        <h2 class="text-2xl font-bold text-center mb-6">로그인</h2>
+                        <form class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">이메일</label>
+                                <input type="email" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="your@email.com">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">비밀번호</label>
+                                <input type="password" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="••••••••">
+                            </div>
+                            <button type="submit" class="w-full bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-colors">
+                                로그인
+                            </button>
+                        </form>
+                        <p class="text-center text-sm text-gray-600 mt-4">
+                            계정이 없으신가요? <a href="#" class="text-blue-500 hover:underline">회원가입</a>
+                        </p>
+                    </div>
+                `,
+                code: `<div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold text-center mb-6">로그인</h2>
+    <form class="space-y-4">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">이메일</label>
+            <input type="email" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="your@email.com">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">비밀번호</label>
+            <input type="password" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="••••••••">
+        </div>
+        <button type="submit" class="w-full bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600">로그인</button>
+    </form>
+</div>`
+            },
+            cta: {
+                name: 'CTA 섹션',
+                html: `
+                    <div class="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-12 rounded-lg text-center">
+                        <h2 class="text-3xl font-bold mb-4">지금 바로 시작하세요!</h2>
+                        <p class="text-xl mb-8 opacity-90">WindWalker와 함께 더 빠르고 스마트한 개발을 경험해보세요</p>
+                        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                            <button class="bg-white text-purple-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                                무료로 시작하기
+                            </button>
+                            <button class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-purple-600 transition-colors">
+                                데모 보기
+                            </button>
+                        </div>
+                    </div>
+                `,
+                code: `<div class="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-12 rounded-lg text-center">
+    <h2 class="text-3xl font-bold mb-4">지금 바로 시작하세요!</h2>
+    <p class="text-xl mb-8 opacity-90">WindWalker와 함께 더 빠르고 스마트한 개발을 경험해보세요</p>
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <button class="bg-white text-purple-600 px-8 py-3 rounded-lg font-semibold">무료로 시작하기</button>
+        <button class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold">데모 보기</button>
+    </div>
+</div>`
+            }
+        };
+
+        function setViewport(viewport) {
+            currentViewport = viewport;
+            const container = document.getElementById('preview-container');
+            const indicator = document.getElementById('viewport-indicator');
+            
+            // 버튼 상태 업데이트
+            document.querySelectorAll('[id^="btn-"]').forEach(btn => {
+                btn.className = btn.className.replace('bg-blue-500 text-white', 'hover:bg-gray-200');
+            });
+            document.getElementById(`btn-${viewport}`).className = 'px-3 py-2 text-sm bg-blue-500 text-white';
+            
+            // 뷰포트 크기 변경
+            container.className = `mx-auto viewport-${viewport} transition-all duration-300`;
+            
+            // 인디케이터 업데이트
+            const viewportNames = { desktop: '데스크톱', tablet: '태블릿', mobile: '모바일' };
+            indicator.textContent = viewportNames[viewport];
+        }
+
+        function selectComponent(componentId) {
+            selectedComponent = componentId;
+            const component = components[componentId];
+            
+            if (component) {
+                // 프리뷰 업데이트
+                document.getElementById('preview-content').innerHTML = component.html;
+                
+                // 코드 패널 업데이트
+                if (codeVisible) {
+                    document.getElementById('code-content').innerHTML = `<code>${component.code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code>`;
+                }
+                
+                // 선택된 컴포넌트 하이라이트
+                document.querySelectorAll('.component-card').forEach(card => {
+                    card.className = card.className.replace(' bg-blue-50 border-blue-200', '');
+                });
+                event.target.closest('.component-card').className += ' bg-blue-50 border-blue-200';
+            }
+        }
+
+        function toggleCode() {
+            codeVisible = !codeVisible;
+            const panel = document.getElementById('code-panel');
+            const btn = document.getElementById('code-btn');
+            
+            if (codeVisible) {
+                panel.classList.remove('hidden');
+                btn.className = 'px-3 py-2 text-sm bg-blue-500 text-white rounded-lg';
+                if (selectedComponent) {
+                    const component = components[selectedComponent];
+                    document.getElementById('code-content').innerHTML = `<code>${component.code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code>`;
+                }
+            } else {
+                panel.classList.add('hidden');
+                btn.className = 'px-3 py-2 text-sm border rounded-lg hover:bg-gray-100';
+            }
+        }
+
+        function togglePreview() {
+            // 프리뷰 토글 (실제로는 이미 항상 표시됨)
+            alert('프리뷰 모드는 항상 활성화되어 있습니다! ✨');
+        }
+
+        function generateWithAI() {
+            const input = document.getElementById('ai-input').value;
+            if (!input.trim()) {
+                alert('AI에게 요청할 내용을 입력해주세요!');
+                return;
+            }
+            
+            // AI 생성 시뮬레이션
+            const aiThinking = document.getElementById('preview-content');
+            aiThinking.innerHTML = `
+                <div class="text-center py-20">
+                    <div class="animate-spin text-4xl mb-4">🤖</div>
+                    <h3 class="text-lg font-medium mb-2">AI가 컴포넌트를 생성하고 있습니다...</h3>
+                    <p class="text-gray-600">요청: "${input}"</p>
+                </div>
+            `;
+            
+            // 2초 후 결과 표시
+            setTimeout(() => {
+                // 간단한 AI 응답 시뮬레이션
+                let aiComponent = null;
+                const lowerInput = input.toLowerCase();
+                
+                if (lowerInput.includes('로그인') || lowerInput.includes('폼')) {
+                    aiComponent = components.form;
+                } else if (lowerInput.includes('카드') || lowerInput.includes('기능')) {
+                    aiComponent = components.card;
+                } else if (lowerInput.includes('히어로') || lowerInput.includes('메인')) {
+                    aiComponent = components.hero;
+                } else {
+                    // 기본 AI 생성 컴포넌트
+                    aiComponent = {
+                        html: `
+                            <div class="bg-gradient-to-r from-green-400 to-blue-500 text-white p-8 rounded-lg text-center">
+                                <h2 class="text-2xl font-bold mb-4">🤖 AI 생성 컴포넌트</h2>
+                                <p class="mb-4">요청하신 "${input}" 에 대한 컴포넌트입니다</p>
+                                <button class="bg-white text-green-600 px-6 py-2 rounded-lg font-semibold hover:bg-gray-100">
+                                    AI 추천 버튼
+                                </button>
+                            </div>
+                        `,
+                        code: `<!-- AI 생성 컴포넌트: ${input} -->
+<div class="bg-gradient-to-r from-green-400 to-blue-500 text-white p-8 rounded-lg text-center">
+    <h2 class="text-2xl font-bold mb-4">🤖 AI 생성 컴포넌트</h2>
+    <p class="mb-4">요청하신 "${input}" 에 대한 컴포넌트입니다</p>
+    <button class="bg-white text-green-600 px-6 py-2 rounded-lg font-semibold">AI 추천 버튼</button>
+</div>`
+                    };
+                }
+                
+                document.getElementById('preview-content').innerHTML = aiComponent.html;
+                
+                if (codeVisible) {
+                    document.getElementById('code-content').innerHTML = `<code>${aiComponent.code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code>`;
+                }
+                
+                // 입력 필드 초기화
+                document.getElementById('ai-input').value = '';
+                
+                // 성공 메시지
+                setTimeout(() => {
+                    alert('✨ AI 컴포넌트 생성이 완료되었습니다!');
+                }, 500);
+                
+            }, 2000);
+        }
+
+        function switchToIDE() {
+            if (confirm('IDE 모드로 전환하시겠습니까? 현재 프로토타입은 저장되지 않을 수 있습니다.')) {
+                // Docker에서 실행 중인 VS Code 서버로 이동
+                window.open('http://localhost:8080', '_blank');
+            }
+        }
+
+        // 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🌪️ WindWalker Phase 5 프로토타이핑 모드 로드 완료!');
+        });
+    </script>
+</body>
+</html>

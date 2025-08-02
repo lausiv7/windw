@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WindWalker 프로젝트</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        h1 { color: #fff; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .status { 
+            background: rgba(0, 255, 0, 0.2); 
+            padding: 10px; 
+            border-radius: 5px; 
+            margin: 20px 0;
+            border: 1px solid rgba(0, 255, 0, 0.3);
+        }
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .feature {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌪️ WindWalker IDE</h1>
+        
+        <div class="status">
+            ✅ Phase 3 빌드 및 프리뷰 시스템이 활성화되었습니다!
+        </div>
+        
+        <div class="features">
+            <div class="feature">
+                <h3>📁 파일 관리</h3>
+                <p>AI 채팅으로 파일 생성, 읽기, 수정</p>
+            </div>
+            <div class="feature">
+                <h3>🔨 자동 빌드</h3>
+                <p>파일 변경 시 자동 빌드 및 프리뷰 업데이트</p>
+            </div>
+            <div class="feature">
+                <h3>👁️ 실시간 프리뷰</h3>
+                <p>변경사항을 즉시 확인</p>
+            </div>
+            <div class="feature">
+                <h3>🤖 AI 통합</h3>
+                <p>자연어로 프로젝트 조작</p>
+            </div>
+        </div>
+        
+        <p>
+            <strong>마지막 빌드:</strong> <span id="buildTime"></span><br>
+            <strong>상태:</strong> <span style="color: #90EE90;">정상 작동</span>
+        </p>
+        
+        <script>
+            // 자동 새로고침 기능
+            function updateTime() {
+                document.getElementById('buildTime').textContent = new Date().toLocaleString();
+            }
+            
+            updateTime();
+            setInterval(updateTime, 1000);
+            
+            console.log('WindWalker Phase 3 프리뷰 시스템 로드 완료!');
+        </script>
+    </div>
+</body>
+</html>

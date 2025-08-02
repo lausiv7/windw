@@ -25,6 +25,7 @@ code-server --bind-addr 0.0.0.0:8082 \
            --user-data-dir $HOME/.local/share/code-server \
            --extensions-dir $HOME/.local/share/code-server/extensions \
            --disable-telemetry \
+           --disable-workspace-trust \
            --auth none \
            $HOME/studio
 

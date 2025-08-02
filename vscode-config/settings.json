@@ -8,5 +8,15 @@
   "files.autoSaveDelay": 1000,
   "terminal.integrated.shell.linux": "/bin/bash",
   "extensions.autoUpdate": false,
-  "workbench.startupEditor": "welcomePage"
+  "workbench.startupEditor": "none",
+  "security.workspace.trust.enabled": false,
+  "security.workspace.trust.startupPrompt": "never",
+  "security.workspace.trust.banner": "never",
+  "security.workspace.trust.emptyWindow": false,
+  "security.workspace.trust.untrustedFiles": "open",
+  "update.mode": "none",
+  "telemetry.telemetryLevel": "off",
+  "workbench.enableExperiments": false,
+  "workbench.tips.enabled": false,
+  "workbench.welcomePage.walkthroughs.openOnInstall": false
 }
