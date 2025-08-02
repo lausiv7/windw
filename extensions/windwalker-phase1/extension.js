@@ -64,20 +64,29 @@ class ChatWebViewProvider {
                         const userMessage = data.data.content;
                         console.log('[ChatWebViewProvider] Processing user message:', userMessage);
                         
-                        // 간단한 에코 응답 (Phase 1 테스트용)
-                        let response = `Echo: ${userMessage}`;
-                        
-                        // 특별한 명령어 처리
-                        if (userMessage.toLowerCase().includes('hello')) {
-                            response = 'Hello! WindWalker Phase 1이 정상적으로 작동하고 있습니다! 🚀';
-                        } else if (userMessage.toLowerCase().includes('test')) {
-                            response = '테스트 성공! 확장과 웹뷰 간의 양방향 통신이 완벽하게 작동합니다! ✅';
+                        // Phase 2: 파일 시스템 명령어 처리
+                        if (userMessage.toLowerCase().startsWith('파일 생성:') || userMessage.toLowerCase().startsWith('create file:')) {
+                            await this._handleFileCreate(webviewView, userMessage);
+                        } else if (userMessage.toLowerCase().startsWith('파일 읽기:') || userMessage.toLowerCase().startsWith('read file:')) {
+                            await this._handleFileRead(webviewView, userMessage);
+                        } else if (userMessage.toLowerCase().startsWith('파일 수정:') || userMessage.toLowerCase().startsWith('edit file:')) {
+                            await this._handleFileEdit(webviewView, userMessage);
+                        } else {
+                            // 간단한 에코 응답 (Phase 1 테스트용)
+                            let response = `Echo: ${userMessage}`;
+                            
+                            // 특별한 명령어 처리
+                            if (userMessage.toLowerCase().includes('hello')) {
+                                response = 'Hello! WindWalker Phase 2가 정상적으로 작동하고 있습니다! 🚀\n\n파일 명령어:\n- "파일 생성: filename.txt, 내용: Hello World"\n- "파일 읽기: filename.txt"\n- "파일 수정: filename.txt, 내용: New content"';
+                            } else if (userMessage.toLowerCase().includes('test')) {
+                                response = '테스트 성공! 확장과 웹뷰 간의 양방향 통신이 완벽하게 작동합니다! ✅\n\nPhase 2 파일 시스템 기능이 추가되었습니다!';
+                            }
+                            
+                            webviewView.webview.postMessage({
+                                type: 'chat:response',
+                                data: response
+                            });
                         }
-                        
-                        webviewView.webview.postMessage({
-                            type: 'chat:response',
-                            data: response
-                        });
                         break;
                         
                     default:
@@ -92,6 +101,153 @@ class ChatWebViewProvider {
                 });
             }
         });
+    }
+
+    // Phase 2: FileManager 기능 구현
+    async _handleFileCreate(webviewView, userMessage) {
+        try {
+            const match = userMessage.match(/파일 생성:\s*([^,]+),\s*내용:\s*(.+)|create file:\s*([^,]+),\s*content:\s*(.+)/i);
+            if (!match) {
+                webviewView.webview.postMessage({
+                    type: 'chat:response',
+                    data: '파일 생성 형식이 올바르지 않습니다. 예: "파일 생성: test.txt, 내용: Hello World"'
+                });
+                return;
+            }
+
+            const fileName = (match[1] || match[3]).trim();
+            const content = (match[2] || match[4]).trim();
+
+            // 워크스페이스 폴더 확인
+            if (!vscode.workspace.workspaceFolders) {
+                webviewView.webview.postMessage({
+                    type: 'chat:response',
+                    data: '워크스페이스가 열려있지 않습니다. 폴더를 먼저 열어주세요.'
+                });
+                return;
+            }
+
+            const workspaceFolder = vscode.workspace.workspaceFolders[0];
+            const filePath = vscode.Uri.joinPath(workspaceFolder.uri, fileName);
+
+            // 파일 생성
+            await vscode.workspace.fs.writeFile(filePath, Buffer.from(content, 'utf8'));
+
+            webviewView.webview.postMessage({
+                type: 'chat:response',
+                data: `✅ 파일이 성공적으로 생성되었습니다: ${fileName}\n내용: ${content}`
+            });
+
+            console.log(`[FileManager] Created file: ${fileName}`);
+
+        } catch (error) {
+            console.error('[FileManager] Error creating file:', error);
+            webviewView.webview.postMessage({
+                type: 'chat:response',
+                data: `❌ 파일 생성 중 오류가 발생했습니다: ${error.message}`
+            });
+        }
+    }
+
+    async _handleFileRead(webviewView, userMessage) {
+        try {
+            const match = userMessage.match(/파일 읽기:\s*(.+)|read file:\s*(.+)/i);
+            if (!match) {
+                webviewView.webview.postMessage({
+                    type: 'chat:response',
+                    data: '파일 읽기 형식이 올바르지 않습니다. 예: "파일 읽기: test.txt"'
+                });
+                return;
+            }
+
+            const fileName = (match[1] || match[2]).trim();
+
+            // 워크스페이스 폴더 확인
+            if (!vscode.workspace.workspaceFolders) {
+                webviewView.webview.postMessage({
+                    type: 'chat:response',
+                    data: '워크스페이스가 열려있지 않습니다. 폴더를 먼저 열어주세요.'
+                });
+                return;
+            }
+
+            const workspaceFolder = vscode.workspace.workspaceFolders[0];
+            const filePath = vscode.Uri.joinPath(workspaceFolder.uri, fileName);
+
+            // 파일 읽기
+            const content = await vscode.workspace.fs.readFile(filePath);
+            const textContent = Buffer.from(content).toString('utf8');
+
+            webviewView.webview.postMessage({
+                type: 'chat:response',
+                data: `📄 파일 내용 (${fileName}):\n\n${textContent}`
+            });
+
+            console.log(`[FileManager] Read file: ${fileName}`);
+
+        } catch (error) {
+            console.error('[FileManager] Error reading file:', error);
+            webviewView.webview.postMessage({
+                type: 'chat:response',
+                data: `❌ 파일 읽기 중 오류가 발생했습니다: ${error.message}`
+            });
+        }
+    }
+
+    async _handleFileEdit(webviewView, userMessage) {
+        try {
+            const match = userMessage.match(/파일 수정:\s*([^,]+),\s*내용:\s*(.+)|edit file:\s*([^,]+),\s*content:\s*(.+)/i);
+            if (!match) {
+                webviewView.webview.postMessage({
+                    type: 'chat:response',
+                    data: '파일 수정 형식이 올바르지 않습니다. 예: "파일 수정: test.txt, 내용: New content"'
+                });
+                return;
+            }
+
+            const fileName = (match[1] || match[3]).trim();
+            const newContent = (match[2] || match[4]).trim();
+
+            // 워크스페이스 폴더 확인
+            if (!vscode.workspace.workspaceFolders) {
+                webviewView.webview.postMessage({
+                    type: 'chat:response',
+                    data: '워크스페이스가 열려있지 않습니다. 폴더를 먼저 열어주세요.'
+                });
+                return;
+            }
+
+            const workspaceFolder = vscode.workspace.workspaceFolders[0];
+            const filePath = vscode.Uri.joinPath(workspaceFolder.uri, fileName);
+
+            // 파일 존재 확인
+            try {
+                await vscode.workspace.fs.stat(filePath);
+            } catch {
+                webviewView.webview.postMessage({
+                    type: 'chat:response',
+                    data: `❌ 파일을 찾을 수 없습니다: ${fileName}`
+                });
+                return;
+            }
+
+            // 파일 수정
+            await vscode.workspace.fs.writeFile(filePath, Buffer.from(newContent, 'utf8'));
+
+            webviewView.webview.postMessage({
+                type: 'chat:response',
+                data: `✅ 파일이 성공적으로 수정되었습니다: ${fileName}\n새 내용: ${newContent}`
+            });
+
+            console.log(`[FileManager] Modified file: ${fileName}`);
+
+        } catch (error) {
+            console.error('[FileManager] Error editing file:', error);
+            webviewView.webview.postMessage({
+                type: 'chat:response',
+                data: `❌ 파일 수정 중 오류가 발생했습니다: ${error.message}`
+            });
+        }
     }
 
     _getHtmlForWebview(webview) {
