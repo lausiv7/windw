@@ -6,14 +6,99 @@ test.describe('WindWalker Phase 1 Extension Tests', () => {
     // Code Server 페이지로 이동
     await page.goto('/');
     
+    // 로그인 페이지인지 확인하고 패스워드 입력
+    try {
+      const passwordInput = page.locator('input[type="password"]');
+      if (await passwordInput.isVisible({ timeout: 5000 })) {
+        await passwordInput.fill('windwalker2024');
+        await page.keyboard.press('Enter');
+        await page.waitForTimeout(2000);
+      }
+    } catch (e) {
+      // 이미 로그인되어 있거나 패스워드가 필요 없는 경우
+    }
+    
     // VS Code가 로드될 때까지 기다림
     await page.waitForSelector('.monaco-workbench', { timeout: 30000 });
+    
+    // Workspace Trust 프롬프트 처리 - 더 포괄적인 접근
+    try {
+      console.log('Workspace Trust 처리 시작...');
+      
+      // 여러 가지 Trust 관련 요소들 확인
+      const trustSelectors = [
+        '.monaco-dialog-box',
+        '.notification-toast',
+        '[class*="trust"]',
+        '[aria-label*="trust"]',
+        '[aria-label*="Trust"]',
+        '.modal-dialog',
+        '.dialog-container'
+      ];
+      
+      let trustElementFound = false;
+      for (const selector of trustSelectors) {
+        const element = page.locator(selector);
+        if (await element.isVisible({ timeout: 2000 })) {
+          console.log(`Trust 관련 요소 발견: ${selector}`);
+          trustElementFound = true;
+          
+          // Trust 승인 버튼들 시도
+          const trustButtons = [
+            'button:has-text("Yes")',
+            'button:has-text("Trust")',
+            'button:has-text("Yes, I trust")',
+            'button:has-text("Trust Workspace")',
+            'button[aria-label*="trust"]',
+            'button[aria-label*="Trust"]',
+            '.monaco-button.monaco-text-button',
+            '.primary-button',
+            'button.primary',
+            '[data-button-type="primary"]'
+          ];
+          
+          for (const btnSelector of trustButtons) {
+            try {
+              const button = page.locator(btnSelector);
+              if (await button.isVisible({ timeout: 1000 })) {
+                await button.click();
+                console.log(`✅ Trust 버튼 클릭 성공: ${btnSelector}`);
+                await page.waitForTimeout(3000); // 충분한 대기 시간
+                trustElementFound = true;
+                break;
+              }
+            } catch (e) {
+              // 다음 버튼 시도
+            }
+          }
+          
+          if (trustElementFound) break;
+        }
+      }
+      
+      if (!trustElementFound) {
+        console.log('Trust 프롬프트가 표시되지 않음 (이미 신뢰된 워크스페이스일 수 있음)');
+      }
+      
+      // 추가 대기 시간으로 모든 초기화 완료 보장
+      await page.waitForTimeout(5000);
+      
+    } catch (e) {
+      console.log('Workspace trust 프롬프트 처리 중 오류:', e.message);
+      // 오류 발생 시에도 계속 진행
+    }
     
     // 로딩 완료 기다림
     await page.waitForTimeout(3000);
   });
 
   test('VS Code Extension Host가 로드되는지 확인', async ({ page }) => {
+    // Trust 승인 후 스크린샷 캡처
+    await page.screenshot({ 
+      path: 'test-results/screenshots/01-vscode-after-trust.png',
+      fullPage: true 
+    });
+    
     // 콘솔에서 확장 활성화 메시지 확인
     const logs = [];
     page.on('console', msg => {
@@ -21,6 +106,12 @@ test.describe('WindWalker Phase 1 Extension Tests', () => {
     });
 
     await page.waitForTimeout(5000);
+    
+    // 확장 로드 후 스크린샷
+    await page.screenshot({ 
+      path: 'test-results/screenshots/02-extension-loaded.png',
+      fullPage: true 
+    });
     
     // WindWalker 활성화 로그 확인
     const hasActivationLog = logs.some(log => 
@@ -34,6 +125,30 @@ test.describe('WindWalker Phase 1 Extension Tests', () => {
   test('WindWalker 사이드바 아이콘이 표시되는지 확인', async ({ page }) => {
     // Activity Bar에서 WindWalker 아이콘 찾기
     const activityBar = page.locator('.activitybar');
+    await expect(activityBar).toBeVisible();
+    
+    // 사이드바 영역 스크린샷 캡처
+    await page.screenshot({ 
+      path: 'test-results/screenshots/03-windwalker-sidebar.png',
+      fullPage: true 
+    });
+    
+    // WindWalker 아이콘 클릭 시도
+    try {
+      const windwalkerIcon = page.locator('[title*="WindWalker"], [aria-label*="WindWalker"]');
+      if (await windwalkerIcon.isVisible({ timeout: 5000 })) {
+        await windwalkerIcon.click();
+        await page.waitForTimeout(2000);
+        
+        // WindWalker 패널 열린 후 스크린샷
+        await page.screenshot({ 
+          path: 'test-results/screenshots/04-windwalker-panel-opened.png',
+          fullPage: true 
+        });
+      }
+    } catch (e) {
+      console.log('WindWalker 아이콘을 찾을 수 없습니다:', e.message);
+    }
     await expect(activityBar).toBeVisible();
 
     // WindWalker 아이콘 클릭 시도 (title 또는 aria-label로 찾기)

@@ -15,9 +15,11 @@ module.exports = defineConfig({
   ],
   use: {
     // Global test settings
-    baseURL: 'http://localhost:8082',
+    baseURL: 'http://localhost:8080',
     trace: 'on-first-retry',
-    headless: true,
+    headless: false, // 스크린샷 캡처를 위해 headless 비활성화
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
     args: ['--disable-dev-shm-usage', '--no-sandbox', '--disable-setuid-sandbox']
   },
 
@@ -42,11 +44,11 @@ module.exports = defineConfig({
     }
   ],
 
-  // Code Server가 실행되기를 기다림
+  // Docker에서 실행 중인 Code Server 사용
   webServer: {
-    command: '../start-windwalker.sh',
-    port: 8082,
-    timeout: 30000,
-    reuseExistingServer: !process.env.CI,
+    command: 'echo "Docker 컨테이너 확인 중..." && docker ps | grep windwalker-ide',
+    port: 8080,
+    timeout: 10000,
+    reuseExistingServer: true,
   },
 });

@@ -1,0 +1,35 @@
+[
+  {
+    "timestamp": "2025-08-02T13:27:25.775Z",
+    "reportFile": "reports/windwalker-dashboard-2025-08-02T13-27-25.html",
+    "testCount": 1,
+    "screenshotCount": 3,
+    "phases": {
+      "phase1": {
+        "status": "completed",
+        "tests": 6
+      },
+      "phase2": {
+        "status": "completed",
+        "tests": 4
+      },
+      "phase3": {
+        "status": "completed",
+        "tests": 4
+      },
+      "phase4": {
+        "status": "completed",
+        "tests": 4
+      },
+      "phase5": {
+        "status": "completed",
+        "tests": 6
+      }
+    },
+    "summary": {
+      "totalTests": 0,
+      "passedTests": 0,
+      "failedTests": 0
+    }
+  }
+]
