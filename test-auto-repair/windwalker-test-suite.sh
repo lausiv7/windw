@@ -50,9 +50,14 @@ show_help() {
   auto          🔁 자동 복구 - 실패 시 자동으로 수정 반복
   interactive   💬 대화형 - 사용자와 상호작용하며 수정
 
+자동 GitHub 푸시:
+  🚀 테스트 성공 시 자동으로 결과를 문서화하고 GitHub에 푸시합니다
+  📝 환경변수 AUTO_PUSH_ON_SUCCESS=false로 비활성화 가능
+
 예시:
-  $0 test semi-auto           # 반자동 모드로 테스트
-  $0 test auto               # 자동 복구 모드
+  $0 test semi-auto           # 반자동 모드로 테스트 (성공 시 자동 푸시)
+  $0 test auto               # 자동 복구 모드 (성공 시 자동 푸시)
+  AUTO_PUSH_ON_SUCCESS=false $0 test semi-auto  # 자동 푸시 비활성화
   $0 generate record         # 브라우저 녹화로 테스트 생성
   $0 ui                      # 브라우저 테스트 선택기
   $0 report                  # 최신 리포트 보기
@@ -133,6 +138,55 @@ run_tests() {
     
     if [ $exit_code -eq 0 ]; then
         success "테스트 완료!"
+        
+        # 🚀 테스트 성공 시 자동 GitHub 푸시 및 문서화
+        if [[ "$mode" == "auto" ]] || [[ "${AUTO_PUSH_ON_SUCCESS:-true}" == "true" ]]; then
+            log "테스트 성공! 자동 문서화 및 GitHub 푸시 수행 중..."
+            
+            # 자동 문서화 실행
+            if node auto-documentation.js; then
+                success "자동 문서화 완료"
+            else
+                warning "자동 문서화 실패 - 수동으로 확인 필요"
+            fi
+            
+            # Git 상태 확인 및 푸시
+            cd ..
+            if git status --porcelain | grep -q .; then
+                log "변경사항 감지 - Git 커밋 및 푸시 중..."
+                
+                # 테스트 결과 커밋
+                git add test-auto-repair/test-results.json test-auto-repair/auto-repair-report.json
+                
+                if git commit -m "$(cat <<'EOF'
+🧪 WindWalker 자동 테스트 성공
+
+✅ 테스트 모드: ${mode}
+📊 테스트 결과: 성공
+🤖 자동 문서화: 완료
+
+🚀 Generated with [Claude Code](https://claude.ai/code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+EOF
+)"; then
+                    success "Git 커밋 완료"
+                    
+                    if git push origin main; then
+                        success "GitHub 푸시 완료"
+                    else
+                        warning "GitHub 푸시 실패 - 네트워크 확인 필요"
+                    fi
+                else
+                    warning "Git 커밋 실패 - 변경사항이 없거나 충돌 발생"
+                fi
+            else
+                log "변경사항 없음 - 푸시 스킵"
+            fi
+            cd test-auto-repair
+        else
+            log "수동 모드 - 자동 푸시 스킵 (AUTO_PUSH_ON_SUCCESS=false)"
+        fi
     else
         error "테스트 실패 (종료 코드: $exit_code)"
     fi
