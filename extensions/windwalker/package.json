@@ -23,6 +23,22 @@
       {
         "command": "windwalker.helloWorld",
         "title": "WindWalker: Hello World"
+      },
+      {
+        "command": "windwalker.runTests",
+        "title": "WindWalker: Run Tests"
+      },
+      {
+        "command": "windwalker.runSmokeTests",
+        "title": "WindWalker: Run Smoke Tests"
+      },
+      {
+        "command": "windwalker.showStatus",
+        "title": "WindWalker: Show Status"
+      },
+      {
+        "command": "windwalker.gitStatus",
+        "title": "WindWalker: Git Status"
       }
     ],
     "viewsContainers": {
@@ -63,7 +79,8 @@
     }
   },
   "dependencies": {
-    "@google/generative-ai": "^0.2.1"
+    "@google/generative-ai": "^0.2.1",
+    "simple-git": "^3.19.1"
   },
   "devDependencies": {
     "@types/vscode": "^1.74.0",

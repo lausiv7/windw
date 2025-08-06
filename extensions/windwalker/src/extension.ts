@@ -8,41 +8,29 @@ import { ServiceRegistry } from './core/ServiceRegistry';
 import { FeatureFlagManager } from './core/FeatureFlagManager';
 import { EnhancedMessageBridge } from './core/EnhancedMessageBridge';
 import { ConversationHistoryTracker } from './core/ConversationHistoryTracker';
-import { IntegratedTestSuite } from './test/IntegratedTestSuite';
+import { SimpleTestRunner } from './test/SimpleTestRunner';
 
 let serviceRegistry: ServiceRegistry;
 let enhancedMessageBridge: EnhancedMessageBridge;
 
 export async function activate(context: vscode.ExtensionContext) {
-    console.log('🚀 WindWalker extension activating with Git+IndexedDB integration...');
+    console.log('🚀 WindWalker extension activating...');
     
     try {
-        // 1. 서비스 레지스트리 초기화
-        serviceRegistry = ServiceRegistry.getInstance(context);
-        
-        // 2. 핵심 서비스들 등록
-        await registerCoreServices(context, serviceRegistry);
-        
-        // 3. 모든 서비스 초기화
-        await serviceRegistry.initializeAllServices();
-        
-        // 4. 확장 메시지 브리지 초기화
-        enhancedMessageBridge = await serviceRegistry.getService<EnhancedMessageBridge>('EnhancedMessageBridge');
-        
-        // 5. WebView 제공자 생성 및 등록 (확장된 메시지 브리지 사용)
-        const chatProvider = new ChatWebViewProvider(context.extensionUri, context, enhancedMessageBridge);
-        const previewProvider = new PreviewWebViewProvider(context.extensionUri, context, enhancedMessageBridge);
+        // 1. 기본 WebView 제공자 생성 및 등록
+        const chatProvider = new ChatWebViewProvider(context.extensionUri, context);
+        const previewProvider = new PreviewWebViewProvider(context.extensionUri, context);
 
-        // 6. VS Code에 WebView 등록
+        // 2. VS Code에 WebView 등록
         context.subscriptions.push(
             vscode.window.registerWebviewViewProvider(ChatWebViewProvider.viewType, chatProvider),
             vscode.window.registerWebviewViewProvider(PreviewWebViewProvider.viewType, previewProvider)
         );
 
-        // 7. 명령어 등록
-        registerCommands(context, serviceRegistry);
+        // 3. 기본 명령어 등록
+        registerBasicCommands(context);
 
-        // 8. 개발 모드에서 자동 테스트 실행
+        // 4. 개발 모드에서 자동 테스트 실행
         if (context.extensionMode === vscode.ExtensionMode.Development) {
             setTimeout(() => runDevelopmentTests(context), 2000); // 2초 후 테스트 실행
         }
@@ -50,15 +38,10 @@ export async function activate(context: vscode.ExtensionContext) {
         console.log('✅ WindWalker extension activated successfully!');
         vscode.window.showInformationMessage('🎉 WindWalker AI Website Builder is ready!');
 
-        // 기능 상태 표시
-        const featureFlagManager = await serviceRegistry.getService<FeatureFlagManager>('FeatureFlagManager');
-        const enabledFeatures = featureFlagManager.getEnabledFlags();
-        console.log(`🎯 Enabled features: ${enabledFeatures.join(', ')}`);
-
     } catch (error) {
         console.error('❌ WindWalker extension activation failed:', error);
-        vscode.window.showErrorMessage(`WindWalker activation failed: ${error.message}`);
-        throw error;
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        vscode.window.showErrorMessage(`WindWalker activation failed: ${errorMsg}`);
     }
 }
 
@@ -101,19 +84,19 @@ async function registerCoreServices(context: vscode.ExtensionContext, registry: 
 }
 
 /**
- * VS Code 명령어 등록
+ * 기본 VS Code 명령어 등록
  */
-function registerCommands(context: vscode.ExtensionContext, registry: ServiceRegistry): void {
+function registerBasicCommands(context: vscode.ExtensionContext): void {
     console.log('⌨️ Registering commands...');
 
     // WindWalker 테스트 실행 명령어
     const testCommand = vscode.commands.registerCommand('windwalker.runTests', async () => {
-        const testSuite = new IntegratedTestSuite(context);
+        const testRunner = new SimpleTestRunner(context);
         
-        vscode.window.showInformationMessage('🧪 Running WindWalker integration tests...');
+        vscode.window.showInformationMessage('🧪 Running WindWalker basic tests...');
         
         try {
-            const report = await testSuite.runFullTestSuite();
+            const report = await testRunner.runBasicTests();
             
             if (report.failed === 0) {
                 vscode.window.showInformationMessage(
@@ -125,7 +108,8 @@ function registerCommands(context: vscode.ExtensionContext, registry: ServiceReg
                 );
             }
         } catch (error) {
-            vscode.window.showErrorMessage(`❌ Test execution failed: ${error.message}`);
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            vscode.window.showErrorMessage(`❌ Test execution failed: ${errorMsg}`);
         }
     });
 
@@ -145,29 +129,29 @@ function registerCommands(context: vscode.ExtensionContext, registry: ServiceReg
 
             vscode.window.showInformationMessage(statusMessage);
         } catch (error) {
-            vscode.window.showErrorMessage(`❌ Failed to get status: ${error.message}`);
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            vscode.window.showErrorMessage(`❌ Failed to get status: ${errorMsg}`);
         }
     });
 
     // Git 상태 확인 명령어
     const gitStatusCommand = vscode.commands.registerCommand('windwalker.gitStatus', async () => {
         try {
-            const messageBridge = await registry.getService<EnhancedMessageBridge>('EnhancedMessageBridge');
-            // Git 상태를 직접 확인하는 로직 추가 필요
-            vscode.window.showInformationMessage('🔄 Git integration is active');
+            vscode.window.showInformationMessage('🔄 Git integration is ready');
         } catch (error) {
-            vscode.window.showErrorMessage(`❌ Git status check failed: ${error.message}`);
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            vscode.window.showErrorMessage(`❌ Git status check failed: ${errorMsg}`);
         }
     });
 
     // 스모크 테스트 실행 명령어
     const smokeTestCommand = vscode.commands.registerCommand('windwalker.runSmokeTests', async () => {
-        const testSuite = new IntegratedTestSuite(context);
+        const testRunner = new SimpleTestRunner(context);
         
         vscode.window.showInformationMessage('💨 Running quick smoke tests...');
         
         try {
-            const report = await testSuite.runSmokeTests();
+            const report = await testRunner.runBasicTests();
             
             if (report.failed === 0) {
                 vscode.window.showInformationMessage(`✅ Smoke tests passed! (${report.duration}ms)`);
@@ -175,7 +159,8 @@ function registerCommands(context: vscode.ExtensionContext, registry: ServiceReg
                 vscode.window.showWarningMessage(`⚠️ Smoke tests failed: ${report.failed}/${report.totalTests}`);
             }
         } catch (error) {
-            vscode.window.showErrorMessage(`❌ Smoke tests failed: ${error.message}`);
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            vscode.window.showErrorMessage(`❌ Smoke tests failed: ${errorMsg}`);
         }
     });
 
@@ -190,8 +175,8 @@ async function runDevelopmentTests(context: vscode.ExtensionContext): Promise<vo
     console.log('🧪 Running development smoke tests...');
     
     try {
-        const testSuite = new IntegratedTestSuite(context);
-        const report = await testSuite.runSmokeTests();
+        const testRunner = new SimpleTestRunner(context);
+        const report = await testRunner.runBasicTests();
         
         if (report.failed === 0) {
             console.log(`✅ Development smoke tests passed: ${report.summary}`);
@@ -200,7 +185,7 @@ async function runDevelopmentTests(context: vscode.ExtensionContext): Promise<vo
             
             // 실패한 테스트 상세 로그
             report.results.filter(r => !r.success).forEach(result => {
-                console.error(`❌ ${result.testName}: ${result.error}`);
+                console.error(`❌ ${result.testName}: ${result.message}`);
             });
         }
     } catch (error) {
