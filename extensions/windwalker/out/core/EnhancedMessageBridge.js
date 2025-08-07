@@ -53,9 +53,10 @@ class EnhancedMessageBridge extends MessageBridge_1.MessageBridge {
         // 2. AI 서비스들 초기화
         this.templateManager = await this.serviceRegistry.getService('TemplateManager');
         this.conversationAI = await this.serviceRegistry.getService('ConversationAI');
+        this.historyTracker = await this.serviceRegistry.getService('ConversationHistoryTracker');
         // 3. 확장 메시지 핸들러 등록
         this.registerEnhancedHandlers();
-        console.log('✅ EnhancedMessageBridge initialized with AI conversation capabilities');
+        console.log('✅ EnhancedMessageBridge initialized with AI conversation capabilities and history tracking');
     }
     dispose() {
         this.currentConversation = null;
@@ -107,6 +108,8 @@ class EnhancedMessageBridge extends MessageBridge_1.MessageBridge {
         // 대화 관리 핸들러
         this.messageHandlers.set('conversation:start', this.handleConversationStart.bind(this));
         this.messageHandlers.set('conversation:end', this.handleConversationEnd.bind(this));
+        this.messageHandlers.set('conversation:history', this.handleConversationHistory.bind(this));
+        this.messageHandlers.set('conversation:rollback', this.handleConversationRollback.bind(this));
         // 기능 플래그 핸들러
         this.messageHandlers.set('feature:status', this.handleFeatureStatus.bind(this));
         this.messageHandlers.set('feature:toggle', this.handleFeatureToggle.bind(this));
@@ -167,7 +170,18 @@ class EnhancedMessageBridge extends MessageBridge_1.MessageBridge {
             const personalizedResponse = this.conversationAI.personalizeResponse(aiResponse, this.currentConversation);
             // 4. 대화 컨텍스트 업데이트
             this.currentConversation = this.conversationAI.updateConversationContext(this.currentConversation, intent.primary, intent.entities);
-            // 5. 웹뷰에 AI 응답 전송
+            // 5. 대화 히스토리에 추가
+            await this.historyTracker.addConversation({
+                message: userMessage,
+                intent: intent.primary,
+                response: personalizedResponse.message,
+                metadata: {
+                    confidence: intent.confidence,
+                    entities: intent.entities,
+                    conversationId: this.currentConversation.conversationId
+                }
+            });
+            // 6. 웹뷰에 AI 응답 전송
             await webview.postMessage({
                 type: 'ai:response',
                 data: Object.assign(Object.assign({}, personalizedResponse), { intent: intent.primary, confidence: intent.confidence, conversationId: this.currentConversation.conversationId }),
@@ -324,6 +338,56 @@ class EnhancedMessageBridge extends MessageBridge_1.MessageBridge {
             };
         }
         return { message: 'No active conversation to end' };
+    }
+    async handleConversationHistory(message) {
+        const { limit, sessionId } = message.data || {};
+        if (limit && limit > 0) {
+            const history = await this.historyTracker.getRecentConversations(limit);
+            return {
+                conversations: history,
+                count: history.length,
+                sessionId: await this.historyTracker.getSessionInfo().then(s => s.sessionId)
+            };
+        }
+        else {
+            const history = await this.historyTracker.getConversationHistory(sessionId);
+            return {
+                conversations: history,
+                count: history.length,
+                sessionId: sessionId || await this.historyTracker.getSessionInfo().then(s => s.sessionId)
+            };
+        }
+    }
+    async handleConversationRollback(message) {
+        const { stepIndex, steps } = message.data || {};
+        try {
+            let targetIndex;
+            if (stepIndex !== undefined) {
+                targetIndex = stepIndex;
+            }
+            else if (steps && steps > 0) {
+                const currentHistory = await this.historyTracker.getConversationHistory();
+                targetIndex = Math.max(0, currentHistory.length - steps - 1);
+            }
+            else {
+                throw new Error('Invalid rollback parameters: provide stepIndex or steps');
+            }
+            const rolledBackHistory = await this.historyTracker.rollbackToStep(targetIndex);
+            return {
+                success: true,
+                rolledBackTo: targetIndex,
+                remainingConversations: rolledBackHistory.length,
+                message: `Successfully rolled back to step ${targetIndex}`
+            };
+        }
+        catch (error) {
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            return {
+                success: false,
+                error: errorMsg,
+                message: 'Failed to rollback conversation'
+            };
+        }
     }
     async handleFeatureStatus(message) {
         const allFlags = this.featureFlagManager.getAllFlags();

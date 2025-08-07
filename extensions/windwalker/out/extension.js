@@ -43,7 +43,7 @@ const PreviewWebViewProvider_1 = require("./providers/PreviewWebViewProvider");
 const ServiceRegistry_1 = require("./core/ServiceRegistry");
 const FeatureFlagManager_1 = require("./core/FeatureFlagManager");
 const EnhancedMessageBridge_1 = require("./core/EnhancedMessageBridge");
-// import { ConversationHistoryTracker } from './core/ConversationHistoryTracker';
+const ConversationHistoryTracker_1 = require("./services/ConversationHistoryTracker");
 // import { SimpleTestRunner } from './test/SimpleTestRunner';
 // import { IntegrationTest } from './test/IntegrationTest';
 // import { BasicSystemTest } from './test/BasicSystemTest';
@@ -94,14 +94,14 @@ async function registerCoreServices(context, registry) {
         singleton: true,
         autoStart: true
     });
-    // 2. 대화 히스토리 트래커 등록 (Git+IndexedDB 통합에서 사용)
-    // registry.register({
-    //     name: 'ConversationHistoryTracker',
-    //     implementation: ConversationHistoryTracker,
-    //     dependencies: [],
-    //     singleton: true,
-    //     autoStart: true
-    // });
+    // 2. 대화 히스토리 트래커 등록 (메모리 기반 기본 버전)
+    registry.register({
+        name: 'ConversationHistoryTracker',
+        implementation: ConversationHistoryTracker_1.ConversationHistoryTracker,
+        dependencies: [],
+        singleton: true,
+        autoStart: true
+    });
     // 3. 템플릿 매니저 등록
     registry.register({
         name: 'TemplateManager',

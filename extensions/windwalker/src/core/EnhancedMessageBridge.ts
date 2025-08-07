@@ -7,6 +7,7 @@ import { ServiceRegistry, ServiceInterface } from './ServiceRegistry';
 import { FeatureFlagManager } from './FeatureFlagManager';
 import { TemplateManager } from '../services/TemplateManager';
 import { ConversationAI, UserIntent, ConversationContext, AIResponse } from '../services/ConversationAI';
+import { ConversationHistoryTracker, ConversationEntry } from '../services/ConversationHistoryTracker';
 
 export interface EnhancedWindWalkerMessage extends WindWalkerMessage {
   conversationId?: string;
@@ -24,6 +25,7 @@ export class EnhancedMessageBridge extends MessageBridge implements ServiceInter
   private featureFlagManager!: FeatureFlagManager;
   private templateManager!: TemplateManager;
   private conversationAI!: ConversationAI;
+  private historyTracker!: ConversationHistoryTracker;
   private currentConversation: ConversationContext | null = null;
   private messageIdCounter = 0;
 
@@ -42,11 +44,12 @@ export class EnhancedMessageBridge extends MessageBridge implements ServiceInter
     // 2. AI 서비스들 초기화
     this.templateManager = await this.serviceRegistry.getService<TemplateManager>('TemplateManager');
     this.conversationAI = await this.serviceRegistry.getService<ConversationAI>('ConversationAI');
+    this.historyTracker = await this.serviceRegistry.getService<ConversationHistoryTracker>('ConversationHistoryTracker');
     
     // 3. 확장 메시지 핸들러 등록
     this.registerEnhancedHandlers();
     
-    console.log('✅ EnhancedMessageBridge initialized with AI conversation capabilities');
+    console.log('✅ EnhancedMessageBridge initialized with AI conversation capabilities and history tracking');
   }
 
   dispose(): void {
@@ -108,6 +111,8 @@ export class EnhancedMessageBridge extends MessageBridge implements ServiceInter
     // 대화 관리 핸들러
     this.messageHandlers.set('conversation:start', this.handleConversationStart.bind(this));
     this.messageHandlers.set('conversation:end', this.handleConversationEnd.bind(this));
+    this.messageHandlers.set('conversation:history', this.handleConversationHistory.bind(this));
+    this.messageHandlers.set('conversation:rollback', this.handleConversationRollback.bind(this));
     
     // 기능 플래그 핸들러
     this.messageHandlers.set('feature:status', this.handleFeatureStatus.bind(this));
@@ -192,7 +197,19 @@ export class EnhancedMessageBridge extends MessageBridge implements ServiceInter
         intent.entities
       );
 
-      // 5. 웹뷰에 AI 응답 전송
+      // 5. 대화 히스토리에 추가
+      await this.historyTracker.addConversation({
+        message: userMessage,
+        intent: intent.primary,
+        response: personalizedResponse.message,
+        metadata: {
+          confidence: intent.confidence,
+          entities: intent.entities,
+          conversationId: this.currentConversation.conversationId
+        }
+      });
+
+      // 6. 웹뷰에 AI 응답 전송
       await webview.postMessage({
         type: 'ai:response',
         data: {
@@ -400,6 +417,60 @@ export class EnhancedMessageBridge extends MessageBridge implements ServiceInter
     }
     
     return { message: 'No active conversation to end' };
+  }
+
+  private async handleConversationHistory(message: EnhancedWindWalkerMessage): Promise<any> {
+    const { limit, sessionId } = message.data || {};
+    
+    if (limit && limit > 0) {
+      const history = await this.historyTracker.getRecentConversations(limit);
+      return {
+        conversations: history,
+        count: history.length,
+        sessionId: await this.historyTracker.getSessionInfo().then(s => s.sessionId)
+      };
+    } else {
+      const history = await this.historyTracker.getConversationHistory(sessionId);
+      return {
+        conversations: history,
+        count: history.length,
+        sessionId: sessionId || await this.historyTracker.getSessionInfo().then(s => s.sessionId)
+      };
+    }
+  }
+
+  private async handleConversationRollback(message: EnhancedWindWalkerMessage): Promise<any> {
+    const { stepIndex, steps } = message.data || {};
+    
+    try {
+      let targetIndex: number;
+      
+      if (stepIndex !== undefined) {
+        targetIndex = stepIndex;
+      } else if (steps && steps > 0) {
+        const currentHistory = await this.historyTracker.getConversationHistory();
+        targetIndex = Math.max(0, currentHistory.length - steps - 1);
+      } else {
+        throw new Error('Invalid rollback parameters: provide stepIndex or steps');
+      }
+
+      const rolledBackHistory = await this.historyTracker.rollbackToStep(targetIndex);
+      
+      return {
+        success: true,
+        rolledBackTo: targetIndex,
+        remainingConversations: rolledBackHistory.length,
+        message: `Successfully rolled back to step ${targetIndex}`
+      };
+      
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      return {
+        success: false,
+        error: errorMsg,
+        message: 'Failed to rollback conversation'
+      };
+    }
   }
 
   private async handleFeatureStatus(message: EnhancedWindWalkerMessage): Promise<any> {

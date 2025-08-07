@@ -7,7 +7,7 @@ import { PreviewWebViewProvider } from './providers/PreviewWebViewProvider';
 import { ServiceRegistry } from './core/ServiceRegistry';
 import { FeatureFlagManager } from './core/FeatureFlagManager';
 import { EnhancedMessageBridge } from './core/EnhancedMessageBridge';
-// import { ConversationHistoryTracker } from './core/ConversationHistoryTracker';
+import { ConversationHistoryTracker } from './services/ConversationHistoryTracker';
 // import { SimpleTestRunner } from './test/SimpleTestRunner';
 // import { IntegrationTest } from './test/IntegrationTest';
 // import { BasicSystemTest } from './test/BasicSystemTest';
@@ -73,14 +73,14 @@ async function registerCoreServices(context: vscode.ExtensionContext, registry: 
         autoStart: true
     });
 
-    // 2. 대화 히스토리 트래커 등록 (Git+IndexedDB 통합에서 사용)
-    // registry.register({
-    //     name: 'ConversationHistoryTracker',
-    //     implementation: ConversationHistoryTracker,
-    //     dependencies: [],
-    //     singleton: true,
-    //     autoStart: true
-    // });
+    // 2. 대화 히스토리 트래커 등록 (메모리 기반 기본 버전)
+    registry.register({
+        name: 'ConversationHistoryTracker',
+        implementation: ConversationHistoryTracker,
+        dependencies: [],
+        singleton: true,
+        autoStart: true
+    });
 
     // 3. 템플릿 매니저 등록
     registry.register({
