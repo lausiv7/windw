@@ -198,7 +198,8 @@ export class ServiceRegistry {
     } catch (error) {
       this.initializing.delete(name);
       console.error(`[ServiceRegistry] Failed to initialize ${name}:`, error);
-      throw new Error(`Service initialization failed: ${name} - ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      throw new Error(`Service initialization failed: ${name} - ${errorMessage}`);
     }
   }
 

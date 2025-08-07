@@ -44,24 +44,24 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "windwalker",
-          "title": "WindWalker",
-          "icon": "$(terminal)"
+          "id": "windwalker-full",
+          "title": "WindWalker Full",
+          "icon": "$(gear)"
         }
       ]
     },
     "views": {
-      "windwalker": [
+      "windwalker-full": [
         {
           "type": "webview",
-          "id": "windwalker.chatView",
-          "name": "AI Chat",
+          "id": "windwalker.fullChatView",
+          "name": "AI Chat (Full)",
           "when": "true"
         },
         {
           "type": "webview", 
-          "id": "windwalker.previewView",
-          "name": "Preview",
+          "id": "windwalker.fullPreviewView",
+          "name": "Preview (Full)",
           "when": "true"
         }
       ]

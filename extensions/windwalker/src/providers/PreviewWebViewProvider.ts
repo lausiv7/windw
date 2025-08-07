@@ -2,18 +2,26 @@
 // [책임] 개발 서버(localhost:9003)를 iframe으로 로드하고, 빌드 완료 시 자동 새로고침을 처리합니다.
 
 import * as vscode from 'vscode';
+import { MessageBridge } from '../core/MessageBridge';
 
 export class PreviewWebViewProvider implements vscode.WebviewViewProvider {
 
-	public static readonly viewType = 'windwalker.previewView';
+	public static readonly viewType = 'windwalker.fullPreviewView';
 
 	private _view?: vscode.WebviewView;
 	private currentPreviewUrl: string = 'http://localhost:9003';
+	private messageBridge?: MessageBridge;
 
 	constructor(
 		private readonly _extensionUri: vscode.Uri,
 		private readonly context: vscode.ExtensionContext
 	) { }
+
+	// Enhanced Message Bridge 설정 (서비스 레지스트리에서 호출)
+	public setMessageBridge(messageBridge: MessageBridge): void {
+		this.messageBridge = messageBridge;
+		console.log('[PreviewWebViewProvider] Enhanced Message Bridge connected');
+	}
 
 	public resolveWebviewView(
 		webviewView: vscode.WebviewView,

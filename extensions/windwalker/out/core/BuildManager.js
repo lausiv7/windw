@@ -34,15 +34,6 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BuildManager = void 0;
 const vscode = __importStar(require("vscode"));
@@ -60,193 +51,181 @@ class BuildManager {
         console.log('[BuildManager] Initialized');
     }
     // Start build/dev server
-    startBuild() {
-        return __awaiter(this, arguments, void 0, function* (command = 'npm run dev') {
-            try {
-                this.outputChannel.appendLine(`[${new Date().toISOString()}] Starting build: ${command}`);
-                // Stop existing build if running
-                if (this.buildStatus.isRunning) {
-                    yield this.stopBuild();
-                }
-                // Parse command
-                const [cmd, ...args] = command.split(' ');
-                // Create VS Code task
-                const task = new vscode.Task({ type: 'windwalker-build' }, vscode.TaskScope.Workspace, 'WindWalker Build', 'windwalker', new vscode.ShellExecution(cmd, args), []);
-                // Set task properties
-                task.group = vscode.TaskGroup.Build;
-                task.presentationOptions = {
-                    echo: true,
-                    reveal: vscode.TaskRevealKind.Silent,
-                    focus: false,
-                    panel: vscode.TaskPanelKind.Dedicated,
-                    showReuseMessage: false,
-                    clear: true
-                };
-                // Execute task
-                this.currentTask = yield vscode.tasks.executeTask(task);
-                // Update status
-                this.buildStatus = {
-                    isRunning: true,
-                    command,
-                    startTime: Date.now()
-                };
-                // Show status in VS Code
-                vscode.window.showInformationMessage(`WindWalker: Started ${command}`);
-                console.log(`[BuildManager] Started build with command: ${command}`);
-                return {
-                    success: true,
-                    message: `Build started successfully: ${command}`,
-                    port: this.extractPortFromCommand(command)
-                };
+    async startBuild(command = 'npm run dev') {
+        try {
+            this.outputChannel.appendLine(`[${new Date().toISOString()}] Starting build: ${command}`);
+            // Stop existing build if running
+            if (this.buildStatus.isRunning) {
+                await this.stopBuild();
             }
-            catch (error) {
-                console.error('[BuildManager] Error starting build:', error);
-                const errorMessage = error instanceof Error ? error.message : String(error);
-                this.outputChannel.appendLine(`[ERROR] ${errorMessage}`);
-                return {
-                    success: false,
-                    message: 'Failed to start build',
-                    error: errorMessage
-                };
-            }
-        });
+            // Parse command
+            const [cmd, ...args] = command.split(' ');
+            // Create VS Code task
+            const task = new vscode.Task({ type: 'windwalker-build' }, vscode.TaskScope.Workspace, 'WindWalker Build', 'windwalker', new vscode.ShellExecution(cmd, args), []);
+            // Set task properties
+            task.group = vscode.TaskGroup.Build;
+            task.presentationOptions = {
+                echo: true,
+                reveal: vscode.TaskRevealKind.Silent,
+                focus: false,
+                panel: vscode.TaskPanelKind.Dedicated,
+                showReuseMessage: false,
+                clear: true
+            };
+            // Execute task
+            this.currentTask = await vscode.tasks.executeTask(task);
+            // Update status
+            this.buildStatus = {
+                isRunning: true,
+                command,
+                startTime: Date.now()
+            };
+            // Show status in VS Code
+            vscode.window.showInformationMessage(`WindWalker: Started ${command}`);
+            console.log(`[BuildManager] Started build with command: ${command}`);
+            return {
+                success: true,
+                message: `Build started successfully: ${command}`,
+                port: this.extractPortFromCommand(command)
+            };
+        }
+        catch (error) {
+            console.error('[BuildManager] Error starting build:', error);
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            this.outputChannel.appendLine(`[ERROR] ${errorMessage}`);
+            return {
+                success: false,
+                message: 'Failed to start build',
+                error: errorMessage
+            };
+        }
     }
     // Stop build/dev server
-    stopBuild() {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                if (!this.buildStatus.isRunning) {
-                    return {
-                        success: true,
-                        message: 'No build process is currently running'
-                    };
-                }
-                this.outputChannel.appendLine(`[${new Date().toISOString()}] Stopping build...`);
-                // Terminate task
-                if (this.currentTask) {
-                    this.currentTask.terminate();
-                    this.currentTask = undefined;
-                }
-                // Close terminal if exists
-                if (this.terminal) {
-                    this.terminal.dispose();
-                    this.terminal = undefined;
-                }
-                // Update status
-                this.buildStatus = { isRunning: false };
-                console.log('[BuildManager] Build stopped');
-                vscode.window.showInformationMessage('WindWalker: Build stopped');
+    async stopBuild() {
+        try {
+            if (!this.buildStatus.isRunning) {
                 return {
                     success: true,
-                    message: 'Build stopped successfully'
+                    message: 'No build process is currently running'
                 };
             }
-            catch (error) {
-                console.error('[BuildManager] Error stopping build:', error);
-                const errorMessage = error instanceof Error ? error.message : String(error);
-                return {
-                    success: false,
-                    message: 'Failed to stop build',
-                    error: errorMessage
-                };
+            this.outputChannel.appendLine(`[${new Date().toISOString()}] Stopping build...`);
+            // Terminate task
+            if (this.currentTask) {
+                this.currentTask.terminate();
+                this.currentTask = undefined;
             }
-        });
+            // Close terminal if exists
+            if (this.terminal) {
+                this.terminal.dispose();
+                this.terminal = undefined;
+            }
+            // Update status
+            this.buildStatus = { isRunning: false };
+            console.log('[BuildManager] Build stopped');
+            vscode.window.showInformationMessage('WindWalker: Build stopped');
+            return {
+                success: true,
+                message: 'Build stopped successfully'
+            };
+        }
+        catch (error) {
+            console.error('[BuildManager] Error stopping build:', error);
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            return {
+                success: false,
+                message: 'Failed to stop build',
+                error: errorMessage
+            };
+        }
     }
     // Restart build
-    restartBuild() {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const command = this.buildStatus.command || 'npm run dev';
-                this.outputChannel.appendLine(`[${new Date().toISOString()}] Restarting build...`);
-                yield this.stopBuild();
-                // Wait a moment before restarting
-                yield new Promise(resolve => setTimeout(resolve, 1000));
-                return yield this.startBuild(command);
-            }
-            catch (error) {
-                console.error('[BuildManager] Error restarting build:', error);
-                const errorMessage = error instanceof Error ? error.message : String(error);
-                return {
-                    success: false,
-                    message: 'Failed to restart build',
-                    error: errorMessage
-                };
-            }
-        });
+    async restartBuild() {
+        try {
+            const command = this.buildStatus.command || 'npm run dev';
+            this.outputChannel.appendLine(`[${new Date().toISOString()}] Restarting build...`);
+            await this.stopBuild();
+            // Wait a moment before restarting
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            return await this.startBuild(command);
+        }
+        catch (error) {
+            console.error('[BuildManager] Error restarting build:', error);
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            return {
+                success: false,
+                message: 'Failed to restart build',
+                error: errorMessage
+            };
+        }
     }
     // Get current build status
     getBuildStatus() {
         return Object.assign({}, this.buildStatus);
     }
     // Check if dev server is running
-    isDevServerRunning() {
-        return __awaiter(this, arguments, void 0, function* (port = 9003) {
-            try {
-                // Simple check - in real implementation might ping the server
-                return this.buildStatus.isRunning && this.buildStatus.port === port;
-            }
-            catch (error) {
-                return false;
-            }
-        });
+    async isDevServerRunning(port = 9003) {
+        try {
+            // Simple check - in real implementation might ping the server
+            return this.buildStatus.isRunning && this.buildStatus.port === port;
+        }
+        catch (error) {
+            return false;
+        }
     }
     // Get available npm scripts from package.json
-    getAvailableScripts() {
-        return __awaiter(this, void 0, void 0, function* () {
-            var _a;
-            try {
-                const workspaceRoot = (_a = vscode.workspace.workspaceFolders) === null || _a === void 0 ? void 0 : _a[0];
-                if (!workspaceRoot) {
-                    return [];
-                }
-                const packageJsonUri = vscode.Uri.joinPath(workspaceRoot.uri, 'package.json');
-                try {
-                    const content = yield vscode.workspace.fs.readFile(packageJsonUri);
-                    const packageJson = JSON.parse(content.toString());
-                    if (packageJson.scripts) {
-                        return Object.keys(packageJson.scripts).map(script => `npm run ${script}`);
-                    }
-                }
-                catch (error) {
-                    console.warn('[BuildManager] Could not read package.json:', error);
-                }
-                return ['npm run dev', 'npm run build', 'npm start'];
-            }
-            catch (error) {
-                console.error('[BuildManager] Error getting available scripts:', error);
+    async getAvailableScripts() {
+        var _a;
+        try {
+            const workspaceRoot = (_a = vscode.workspace.workspaceFolders) === null || _a === void 0 ? void 0 : _a[0];
+            if (!workspaceRoot) {
                 return [];
             }
-        });
-    }
-    // Execute custom command
-    executeCommand(command) {
-        return __awaiter(this, void 0, void 0, function* () {
-            var _a, _b;
+            const packageJsonUri = vscode.Uri.joinPath(workspaceRoot.uri, 'package.json');
             try {
-                this.outputChannel.appendLine(`[${new Date().toISOString()}] Executing: ${command}`);
-                // Create terminal for one-time commands
-                const terminal = vscode.window.createTerminal({
-                    name: 'WindWalker Command',
-                    cwd: (_b = (_a = vscode.workspace.workspaceFolders) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.uri
-                });
-                terminal.sendText(command);
-                terminal.show();
-                console.log(`[BuildManager] Executed command: ${command}`);
-                return {
-                    success: true,
-                    message: `Command executed: ${command}`
-                };
+                const content = await vscode.workspace.fs.readFile(packageJsonUri);
+                const packageJson = JSON.parse(content.toString());
+                if (packageJson.scripts) {
+                    return Object.keys(packageJson.scripts).map(script => `npm run ${script}`);
+                }
             }
             catch (error) {
-                console.error('[BuildManager] Error executing command:', error);
-                const errorMessage = error instanceof Error ? error.message : String(error);
-                return {
-                    success: false,
-                    message: 'Failed to execute command',
-                    error: errorMessage
-                };
+                console.warn('[BuildManager] Could not read package.json:', error);
             }
-        });
+            return ['npm run dev', 'npm run build', 'npm start'];
+        }
+        catch (error) {
+            console.error('[BuildManager] Error getting available scripts:', error);
+            return [];
+        }
+    }
+    // Execute custom command
+    async executeCommand(command) {
+        var _a, _b;
+        try {
+            this.outputChannel.appendLine(`[${new Date().toISOString()}] Executing: ${command}`);
+            // Create terminal for one-time commands
+            const terminal = vscode.window.createTerminal({
+                name: 'WindWalker Command',
+                cwd: (_b = (_a = vscode.workspace.workspaceFolders) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.uri
+            });
+            terminal.sendText(command);
+            terminal.show();
+            console.log(`[BuildManager] Executed command: ${command}`);
+            return {
+                success: true,
+                message: `Command executed: ${command}`
+            };
+        }
+        catch (error) {
+            console.error('[BuildManager] Error executing command:', error);
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            return {
+                success: false,
+                message: 'Failed to execute command',
+                error: errorMessage
+            };
+        }
     }
     // Handle task end event
     handleTaskEnd(event) {

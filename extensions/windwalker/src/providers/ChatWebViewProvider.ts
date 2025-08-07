@@ -6,7 +6,7 @@ import { MessageBridge } from '../core/MessageBridge';
 
 export class ChatWebViewProvider implements vscode.WebviewViewProvider {
 
-	public static readonly viewType = 'windwalker.chatView';
+	public static readonly viewType = 'windwalker.fullChatView';
 
 	private _view?: vscode.WebviewView;
 	private messageBridge: MessageBridge;
@@ -16,6 +16,12 @@ export class ChatWebViewProvider implements vscode.WebviewViewProvider {
 		private readonly context: vscode.ExtensionContext
 	) { 
 		this.messageBridge = new MessageBridge(context);
+	}
+
+	// Enhanced Message Bridge 설정 (서비스 레지스트리에서 호출)
+	public setMessageBridge(messageBridge: MessageBridge): void {
+		this.messageBridge = messageBridge;
+		console.log('[ChatWebViewProvider] Enhanced Message Bridge connected');
 	}
 
 	public resolveWebviewView(

@@ -34,15 +34,6 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FeatureFlagManager = void 0;
 const vscode = __importStar(require("vscode"));
@@ -64,16 +55,14 @@ class FeatureFlagManager {
         };
         console.log('[FeatureFlagManager] Initialized');
     }
-    initialize() {
-        return __awaiter(this, void 0, void 0, function* () {
-            // 저장된 설정 로드
-            yield this.loadConfiguration();
-            // 기본 기능 플래그들 등록
-            this.registerDefaultFlags();
-            // 환경별 설정 적용
-            this.applyEnvironmentConfig();
-            console.log(`✅ FeatureFlagManager initialized with ${this.flags.size} flags`);
-        });
+    async initialize() {
+        // 저장된 설정 로드
+        await this.loadConfiguration();
+        // 기본 기능 플래그들 등록
+        this.registerDefaultFlags();
+        // 환경별 설정 적용
+        this.applyEnvironmentConfig();
+        console.log(`✅ FeatureFlagManager initialized with ${this.flags.size} flags`);
     }
     dispose() {
         this.flags.clear();
@@ -236,29 +225,25 @@ class FeatureFlagManager {
         this.saveConfiguration();
     }
     // === Private Methods ===
-    loadConfiguration() {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const saved = this.context.globalState.get('windwalker.featureFlags');
-                if (saved) {
-                    this.importConfiguration(saved);
-                }
+    async loadConfiguration() {
+        try {
+            const saved = this.context.globalState.get('windwalker.featureFlags');
+            if (saved) {
+                this.importConfiguration(saved);
             }
-            catch (error) {
-                console.error('[FeatureFlagManager] Failed to load configuration:', error);
-            }
-        });
+        }
+        catch (error) {
+            console.error('[FeatureFlagManager] Failed to load configuration:', error);
+        }
     }
-    saveConfiguration() {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const config = this.exportConfiguration();
-                yield this.context.globalState.update('windwalker.featureFlags', config);
-            }
-            catch (error) {
-                console.error('[FeatureFlagManager] Failed to save configuration:', error);
-            }
-        });
+    async saveConfiguration() {
+        try {
+            const config = this.exportConfiguration();
+            await this.context.globalState.update('windwalker.featureFlags', config);
+        }
+        catch (error) {
+            console.error('[FeatureFlagManager] Failed to save configuration:', error);
+        }
     }
     registerDefaultFlags() {
         // Phase 1 기본 기능 플래그들

@@ -34,15 +34,6 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PreviewWebViewProvider = void 0;
 const vscode = __importStar(require("vscode"));
@@ -51,6 +42,11 @@ class PreviewWebViewProvider {
         this._extensionUri = _extensionUri;
         this.context = context;
         this.currentPreviewUrl = 'http://localhost:9003';
+    }
+    // Enhanced Message Bridge 설정 (서비스 레지스트리에서 호출)
+    setMessageBridge(messageBridge) {
+        this.messageBridge = messageBridge;
+        console.log('[PreviewWebViewProvider] Enhanced Message Bridge connected');
     }
     resolveWebviewView(webviewView, context, _token) {
         this._view = webviewView;
@@ -63,24 +59,24 @@ class PreviewWebViewProvider {
         };
         webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
         // 웹뷰로부터 메시지 수신 처리
-        webviewView.webview.onDidReceiveMessage((data) => __awaiter(this, void 0, void 0, function* () {
+        webviewView.webview.onDidReceiveMessage(async (data) => {
             var _a;
             try {
                 console.log('[PreviewWebViewProvider] Received message:', data);
                 switch (data.type) {
                     case 'preview:ready':
                         // 프리뷰가 준비되면 현재 URL 로드
-                        yield this.loadPreview(this.currentPreviewUrl);
+                        await this.loadPreview(this.currentPreviewUrl);
                         break;
                     case 'preview:reload':
                         // 프리뷰 새로고침 요청
-                        yield this.reloadPreview();
+                        await this.reloadPreview();
                         break;
                     case 'preview:changeUrl':
                         // URL 변경 요청
                         if ((_a = data.data) === null || _a === void 0 ? void 0 : _a.url) {
                             this.currentPreviewUrl = data.data.url;
-                            yield this.loadPreview(this.currentPreviewUrl);
+                            await this.loadPreview(this.currentPreviewUrl);
                         }
                         break;
                 }
@@ -95,54 +91,48 @@ class PreviewWebViewProvider {
                     timestamp: Date.now()
                 });
             }
-        }));
+        });
     }
     // 외부에서 프리뷰 새로고침을 요청할 때 사용
-    reloadPreview() {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (this._view) {
-                yield this._view.webview.postMessage({
-                    type: 'preview:reload',
-                    timestamp: Date.now()
-                });
-                console.log('[PreviewWebViewProvider] Preview reload requested');
-            }
-        });
+    async reloadPreview() {
+        if (this._view) {
+            await this._view.webview.postMessage({
+                type: 'preview:reload',
+                timestamp: Date.now()
+            });
+            console.log('[PreviewWebViewProvider] Preview reload requested');
+        }
     }
     // 외부에서 특정 URL을 로드할 때 사용
-    loadPreview(url) {
-        return __awaiter(this, void 0, void 0, function* () {
-            this.currentPreviewUrl = url;
-            if (this._view) {
-                yield this._view.webview.postMessage({
-                    type: 'preview:load',
-                    data: { url },
-                    timestamp: Date.now()
-                });
-                console.log(`[PreviewWebViewProvider] Loading preview: ${url}`);
-            }
-        });
+    async loadPreview(url) {
+        this.currentPreviewUrl = url;
+        if (this._view) {
+            await this._view.webview.postMessage({
+                type: 'preview:load',
+                data: { url },
+                timestamp: Date.now()
+            });
+            console.log(`[PreviewWebViewProvider] Loading preview: ${url}`);
+        }
     }
     // 현재 프리뷰 URL 가져오기
     getCurrentUrl() {
         return this.currentPreviewUrl;
     }
     // 프리뷰 상태 확인
-    checkPreviewStatus() {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                // 간단한 fetch로 서버 상태 확인
-                const response = yield fetch(this.currentPreviewUrl, {
-                    method: 'HEAD',
-                    signal: AbortSignal.timeout(3000) // 3초 타임아웃
-                });
-                return response.ok;
-            }
-            catch (error) {
-                console.warn(`[PreviewWebViewProvider] Preview server not available: ${this.currentPreviewUrl}`);
-                return false;
-            }
-        });
+    async checkPreviewStatus() {
+        try {
+            // 간단한 fetch로 서버 상태 확인
+            const response = await fetch(this.currentPreviewUrl, {
+                method: 'HEAD',
+                signal: AbortSignal.timeout(3000) // 3초 타임아웃
+            });
+            return response.ok;
+        }
+        catch (error) {
+            console.warn(`[PreviewWebViewProvider] Preview server not available: ${this.currentPreviewUrl}`);
+            return false;
+        }
     }
     _getHtmlForWebview(webview) {
         // Get the local path to main script run in the webview, then convert it to a uri we can use in the webview.
@@ -192,7 +182,7 @@ class PreviewWebViewProvider {
     }
 }
 exports.PreviewWebViewProvider = PreviewWebViewProvider;
-PreviewWebViewProvider.viewType = 'windwalker.previewView';
+PreviewWebViewProvider.viewType = 'windwalker.fullPreviewView';
 function getNonce() {
     let text = '';
     const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

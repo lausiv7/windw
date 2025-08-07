@@ -34,15 +34,6 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ChatWebViewProvider = void 0;
 const vscode = __importStar(require("vscode"));
@@ -52,6 +43,11 @@ class ChatWebViewProvider {
         this._extensionUri = _extensionUri;
         this.context = context;
         this.messageBridge = new MessageBridge_1.MessageBridge(context);
+    }
+    // Enhanced Message Bridge 설정 (서비스 레지스트리에서 호출)
+    setMessageBridge(messageBridge) {
+        this.messageBridge = messageBridge;
+        console.log('[ChatWebViewProvider] Enhanced Message Bridge connected');
     }
     resolveWebviewView(webviewView, context, _token) {
         this._view = webviewView;
@@ -64,11 +60,11 @@ class ChatWebViewProvider {
         };
         webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
         // 웹뷰로부터 메시지를 받으면 MessageBridge를 통해 처리
-        webviewView.webview.onDidReceiveMessage((data) => __awaiter(this, void 0, void 0, function* () {
+        webviewView.webview.onDidReceiveMessage(async (data) => {
             try {
                 console.log('[ChatWebViewProvider] Received message:', data);
                 // Phase 2: Use MessageBridge to handle all messages
-                yield this.messageBridge.processMessage(data, webviewView.webview);
+                await this.messageBridge.processMessage(data, webviewView.webview);
             }
             catch (error) {
                 console.error('[ChatWebViewProvider] Error processing message:', error);
@@ -80,7 +76,7 @@ class ChatWebViewProvider {
                     timestamp: Date.now()
                 });
             }
-        }));
+        });
     }
     _getHtmlForWebview(webview) {
         // Get the local path to main script run in the webview, then convert it to a uri we can use in the webview.
@@ -114,7 +110,7 @@ class ChatWebViewProvider {
     }
 }
 exports.ChatWebViewProvider = ChatWebViewProvider;
-ChatWebViewProvider.viewType = 'windwalker.chatView';
+ChatWebViewProvider.viewType = 'windwalker.fullChatView';
 function getNonce() {
     let text = '';
     const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

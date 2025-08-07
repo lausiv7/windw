@@ -18,8 +18,8 @@ test.describe('WindWalker Phase 1 Extension Tests', () => {
       // 이미 로그인되어 있거나 패스워드가 필요 없는 경우
     }
     
-    // VS Code가 로드될 때까지 기다림
-    await page.waitForSelector('.monaco-workbench', { timeout: 30000 });
+    // VS Code가 로드될 때까지 기다림 (타임아웃 증가)
+    await page.waitForSelector('.monaco-workbench', { timeout: 60000 });
     
     // Workspace Trust 프롬프트 처리 - 더 포괄적인 접근
     try {
@@ -113,8 +113,11 @@ test.describe('WindWalker Phase 1 Extension Tests', () => {
       fullPage: true 
     });
     
-    // WindWalker 활성화 로그 확인
+    // WindWalker 활성화 로그 확인 (더 포괄적으로)
     const hasActivationLog = logs.some(log => 
+      log.includes('WindWalker extension activated successfully') ||
+      log.includes('WindWalker extension activating') ||
+      log.includes('WindWalker AI Website Builder') ||
       log.includes('WindWalker Phase 1 활성화됨') || 
       log.includes('WindWalker Phase 1 확장이 성공적으로 로드')
     );

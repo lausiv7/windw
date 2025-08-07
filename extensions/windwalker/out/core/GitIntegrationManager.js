@@ -34,15 +34,6 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GitIntegrationManager = void 0;
 const vscode = __importStar(require("vscode"));
@@ -60,225 +51,207 @@ class GitIntegrationManager {
     /**
      * AI 대화 기반 자동 커밋 생성
      */
-    createAIConversationCommit(conversationId, messageId, userRequest, aiResponse, filesChanged, aiMetadata) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                console.log(`[GitIntegrationManager] Creating AI commit for conversation: ${conversationId}`);
-                // 1. Git 상태 확인
-                const status = yield this.git.status();
-                if (status.files.length === 0) {
-                    throw new Error('No changes to commit');
-                }
-                // 2. 변경된 파일들 스테이징
-                if (filesChanged.length > 0) {
-                    yield this.git.add(filesChanged);
-                }
-                else {
-                    // 모든 변경사항 스테이징
-                    yield this.git.add('.');
-                }
-                // 3. 커밋 메시지 생성 (표준화된 형식)
-                const changeType = this.inferChangeType(userRequest, filesChanged);
-                const shortDescription = this.summarizeChanges(filesChanged, userRequest);
-                const commitMessage = `[AI-Chat-${conversationId}] ${changeType}: ${shortDescription}`;
-                // 4. 상세 메타데이터와 함께 커밋 생성
-                const commit = yield this.git.commit(commitMessage, filesChanged, {
-                    '--author': 'WindWalker AI <ai@windwalker.dev>',
-                    '--trailer': `Conversation-ID: ${conversationId}`,
-                    '--trailer': `Message-ID: ${messageId}`,
-                    '--trailer': `User-Request: "${this.sanitizeForGit(userRequest)}"`,
-                    '--trailer': `AI-Response: "${this.sanitizeForGit(aiResponse.substring(0, 100))}..."`,
-                    '--trailer': `AI-Model: ${aiMetadata.model}`,
-                    '--trailer': `Confidence: ${aiMetadata.confidence}`,
-                    '--trailer': `Processing-Time: ${aiMetadata.processingTime}ms`,
-                    '--trailer': `Generated-By: WindWalker-AI-Engine`,
-                    '--trailer': `Files-Modified: ${filesChanged.join(', ')}`
-                });
-                const result = {
-                    commitHash: commit.commit,
-                    shortHash: commit.commit.substring(0, 8),
-                    message: commitMessage,
-                    filesChanged: filesChanged.length > 0 ? filesChanged : status.files.map(f => f.path),
-                    timestamp: new Date()
-                };
-                console.log(`✅ AI commit created: ${result.shortHash} - ${shortDescription}`);
-                return result;
+    async createAIConversationCommit(conversationId, messageId, userRequest, aiResponse, filesChanged, aiMetadata) {
+        try {
+            console.log(`[GitIntegrationManager] Creating AI commit for conversation: ${conversationId}`);
+            // 1. Git 상태 확인
+            const status = await this.git.status();
+            if (status.files.length === 0) {
+                throw new Error('No changes to commit');
             }
-            catch (error) {
-                console.error(`[GitIntegrationManager] Error creating AI commit:`, error);
-                throw new Error(`Git commit failed: ${error.message}`);
+            // 2. 변경된 파일들 스테이징
+            if (filesChanged.length > 0) {
+                await this.git.add(filesChanged);
             }
-        });
+            else {
+                // 모든 변경사항 스테이징
+                await this.git.add('.');
+            }
+            // 3. 커밋 메시지 생성 (표준화된 형식)
+            const changeType = this.inferChangeType(userRequest, filesChanged);
+            const shortDescription = this.summarizeChanges(filesChanged, userRequest);
+            const commitMessage = `[AI-Chat-${conversationId}] ${changeType}: ${shortDescription}`;
+            // 4. 상세 메타데이터와 함께 커밋 생성
+            const commit = await this.git.commit(commitMessage, filesChanged, {
+                '--author': 'WindWalker AI <ai@windwalker.dev>',
+                '--trailer': `Conversation-ID: ${conversationId}`,
+                '--trailer': `Message-ID: ${messageId}`,
+                '--trailer': `User-Request: "${this.sanitizeForGit(userRequest)}"`,
+                '--trailer': `AI-Response: "${this.sanitizeForGit(aiResponse.substring(0, 100))}..."`,
+                '--trailer': `AI-Model: ${aiMetadata.model}`,
+                '--trailer': `Confidence: ${aiMetadata.confidence}`,
+                '--trailer': `Processing-Time: ${aiMetadata.processingTime}ms`,
+                '--trailer': `Generated-By: WindWalker-AI-Engine`,
+                '--trailer': `Files-Modified: ${filesChanged.join(', ')}`
+            });
+            const result = {
+                commitHash: commit.commit,
+                shortHash: commit.commit.substring(0, 8),
+                message: commitMessage,
+                filesChanged: filesChanged.length > 0 ? filesChanged : status.files.map(f => f.path),
+                timestamp: new Date()
+            };
+            console.log(`✅ AI commit created: ${result.shortHash} - ${shortDescription}`);
+            return result;
+        }
+        catch (error) {
+            console.error(`[GitIntegrationManager] Error creating AI commit:`, error);
+            throw new Error(`Git commit failed: ${error.message}`);
+        }
     }
     /**
      * 특정 대화로 되돌리기 (단계별 또는 전체)
      */
-    revertToConversationState(conversationId, stepsBack) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                console.log(`[GitIntegrationManager] Reverting conversation ${conversationId}, steps back: ${stepsBack || 'latest'}`);
-                // 해당 대화의 모든 커밋 조회 (시간순)
-                const logs = yield this.git.log({
-                    '--grep': `Conversation-ID: ${conversationId}`,
-                    '--reverse': true
-                });
-                if (logs.all.length === 0) {
-                    throw new Error(`No commits found for conversation: ${conversationId}`);
-                }
-                // N번째 전 상태로 되돌리기
-                let targetCommitIndex;
-                if (stepsBack && stepsBack > 0) {
-                    targetCommitIndex = Math.max(0, logs.all.length - stepsBack);
-                }
-                else {
-                    targetCommitIndex = logs.all.length - 1; // 마지막 커밋
-                }
-                const targetCommit = logs.all[targetCommitIndex];
-                // Hard reset으로 되돌리기 (주의: 작업 중인 변경사항 손실 가능)
-                yield this.git.reset(['--hard', targetCommit.hash]);
-                const result = {
-                    targetCommit: targetCommit.hash,
-                    commitMessage: targetCommit.message,
-                    stepsReverted: logs.all.length - targetCommitIndex - 1,
-                    timestamp: new Date()
-                };
-                console.log(`✅ Reverted to commit: ${targetCommit.hash.substring(0, 8)} - ${targetCommit.message}`);
-                return result;
+    async revertToConversationState(conversationId, stepsBack) {
+        try {
+            console.log(`[GitIntegrationManager] Reverting conversation ${conversationId}, steps back: ${stepsBack || 'latest'}`);
+            // 해당 대화의 모든 커밋 조회 (시간순)
+            const logs = await this.git.log({
+                '--grep': `Conversation-ID: ${conversationId}`,
+                '--reverse': true
+            });
+            if (logs.all.length === 0) {
+                throw new Error(`No commits found for conversation: ${conversationId}`);
             }
-            catch (error) {
-                console.error(`[GitIntegrationManager] Error reverting conversation:`, error);
-                throw new Error(`Git revert failed: ${error.message}`);
+            // N번째 전 상태로 되돌리기
+            let targetCommitIndex;
+            if (stepsBack && stepsBack > 0) {
+                targetCommitIndex = Math.max(0, logs.all.length - stepsBack);
             }
-        });
+            else {
+                targetCommitIndex = logs.all.length - 1; // 마지막 커밋
+            }
+            const targetCommit = logs.all[targetCommitIndex];
+            // Hard reset으로 되돌리기 (주의: 작업 중인 변경사항 손실 가능)
+            await this.git.reset(['--hard', targetCommit.hash]);
+            const result = {
+                targetCommit: targetCommit.hash,
+                commitMessage: targetCommit.message,
+                stepsReverted: logs.all.length - targetCommitIndex - 1,
+                timestamp: new Date()
+            };
+            console.log(`✅ Reverted to commit: ${targetCommit.hash.substring(0, 8)} - ${targetCommit.message}`);
+            return result;
+        }
+        catch (error) {
+            console.error(`[GitIntegrationManager] Error reverting conversation:`, error);
+            throw new Error(`Git revert failed: ${error.message}`);
+        }
     }
     /**
      * 특정 커밋으로 되돌리기
      */
-    revertToCommit(commitHash) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                yield this.git.reset(['--hard', commitHash]);
-                console.log(`✅ Reverted to commit: ${commitHash.substring(0, 8)}`);
-            }
-            catch (error) {
-                console.error(`[GitIntegrationManager] Error reverting to commit:`, error);
-                throw new Error(`Git revert to commit failed: ${error.message}`);
-            }
-        });
+    async revertToCommit(commitHash) {
+        try {
+            await this.git.reset(['--hard', commitHash]);
+            console.log(`✅ Reverted to commit: ${commitHash.substring(0, 8)}`);
+        }
+        catch (error) {
+            console.error(`[GitIntegrationManager] Error reverting to commit:`, error);
+            throw new Error(`Git revert to commit failed: ${error.message}`);
+        }
     }
     /**
      * 대화 패턴 분석용 데이터 추출
      */
-    extractConversationAnalytics() {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const logs = yield this.git.log({
-                    '--grep': 'AI-Chat-',
-                    '--pretty': 'format:%H|%s|%b|%an|%ad'
-                });
-                return logs.all.map(log => {
-                    var _a;
-                    const parts = log.hash.split('|');
-                    const body = parts[2] || '';
-                    return {
-                        commitHash: parts[0],
-                        conversationId: this.extractMetadata(body, 'Conversation-ID') || '',
-                        messageId: this.extractMetadata(body, 'Message-ID') || '',
-                        userRequest: this.extractMetadata(body, 'User-Request') || '',
-                        aiModel: this.extractMetadata(body, 'AI-Model') || '',
-                        confidence: parseFloat(this.extractMetadata(body, 'Confidence') || '0'),
-                        processingTime: parseInt(this.extractMetadata(body, 'Processing-Time') || '0'),
-                        filesModified: ((_a = this.extractMetadata(body, 'Files-Modified')) === null || _a === void 0 ? void 0 : _a.split(', ')) || [],
-                        timestamp: new Date(parts[4])
-                    };
-                });
-            }
-            catch (error) {
-                console.error(`[GitIntegrationManager] Error extracting analytics:`, error);
-                return [];
-            }
-        });
+    async extractConversationAnalytics() {
+        try {
+            const logs = await this.git.log({
+                '--grep': 'AI-Chat-',
+                '--pretty': 'format:%H|%s|%b|%an|%ad'
+            });
+            return logs.all.map(log => {
+                var _a;
+                const parts = log.hash.split('|');
+                const body = parts[2] || '';
+                return {
+                    commitHash: parts[0],
+                    conversationId: this.extractMetadata(body, 'Conversation-ID') || '',
+                    messageId: this.extractMetadata(body, 'Message-ID') || '',
+                    userRequest: this.extractMetadata(body, 'User-Request') || '',
+                    aiModel: this.extractMetadata(body, 'AI-Model') || '',
+                    confidence: parseFloat(this.extractMetadata(body, 'Confidence') || '0'),
+                    processingTime: parseInt(this.extractMetadata(body, 'Processing-Time') || '0'),
+                    filesModified: ((_a = this.extractMetadata(body, 'Files-Modified')) === null || _a === void 0 ? void 0 : _a.split(', ')) || [],
+                    timestamp: new Date(parts[4])
+                };
+            });
+        }
+        catch (error) {
+            console.error(`[GitIntegrationManager] Error extracting analytics:`, error);
+            return [];
+        }
     }
     /**
      * 특정 대화의 모든 커밋 조회
      */
-    getConversationCommits(conversationId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                return yield this.git.log({
-                    '--grep': `Conversation-ID: ${conversationId}`,
-                    '--oneline': true
-                });
-            }
-            catch (error) {
-                console.error(`[GitIntegrationManager] Error getting conversation commits:`, error);
-                throw new Error(`Failed to get commits for conversation: ${conversationId}`);
-            }
-        });
+    async getConversationCommits(conversationId) {
+        try {
+            return await this.git.log({
+                '--grep': `Conversation-ID: ${conversationId}`,
+                '--oneline': true
+            });
+        }
+        catch (error) {
+            console.error(`[GitIntegrationManager] Error getting conversation commits:`, error);
+            throw new Error(`Failed to get commits for conversation: ${conversationId}`);
+        }
     }
     /**
      * 현재 Git 커밋 해시 조회
      */
-    getCurrentCommitHash() {
-        return __awaiter(this, void 0, void 0, function* () {
-            var _a;
-            try {
-                const log = yield this.git.log({ maxCount: 1 });
-                return ((_a = log.latest) === null || _a === void 0 ? void 0 : _a.hash) || '';
-            }
-            catch (error) {
-                console.error(`[GitIntegrationManager] Error getting current commit:`, error);
-                return '';
-            }
-        });
+    async getCurrentCommitHash() {
+        var _a;
+        try {
+            const log = await this.git.log({ maxCount: 1 });
+            return ((_a = log.latest) === null || _a === void 0 ? void 0 : _a.hash) || '';
+        }
+        catch (error) {
+            console.error(`[GitIntegrationManager] Error getting current commit:`, error);
+            return '';
+        }
     }
     /**
      * 현재 Git 커밋 정보 조회
      */
-    getCurrentCommit() {
-        return __awaiter(this, void 0, void 0, function* () {
-            var _a, _b;
-            try {
-                const log = yield this.git.log({ maxCount: 1 });
-                return {
-                    hash: ((_a = log.latest) === null || _a === void 0 ? void 0 : _a.hash) || '',
-                    message: ((_b = log.latest) === null || _b === void 0 ? void 0 : _b.message) || ''
-                };
-            }
-            catch (error) {
-                console.error(`[GitIntegrationManager] Error getting current commit info:`, error);
-                return { hash: '', message: '' };
-            }
-        });
+    async getCurrentCommit() {
+        var _a, _b;
+        try {
+            const log = await this.git.log({ maxCount: 1 });
+            return {
+                hash: ((_a = log.latest) === null || _a === void 0 ? void 0 : _a.hash) || '',
+                message: ((_b = log.latest) === null || _b === void 0 ? void 0 : _b.message) || ''
+            };
+        }
+        catch (error) {
+            console.error(`[GitIntegrationManager] Error getting current commit info:`, error);
+            return { hash: '', message: '' };
+        }
     }
     /**
      * Git 상태 확인
      */
-    getStatus() {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                return yield this.git.status();
-            }
-            catch (error) {
-                console.error(`[GitIntegrationManager] Error getting git status:`, error);
-                throw new Error(`Git status check failed: ${error.message}`);
-            }
-        });
+    async getStatus() {
+        try {
+            return await this.git.status();
+        }
+        catch (error) {
+            console.error(`[GitIntegrationManager] Error getting git status:`, error);
+            throw new Error(`Git status check failed: ${error.message}`);
+        }
     }
     /**
      * Git 브랜치 확인
      */
-    getCurrentBranch() {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const branches = yield this.git.branch();
-                return branches.current;
-            }
-            catch (error) {
-                console.error(`[GitIntegrationManager] Error getting current branch:`, error);
-                return 'main';
-            }
-        });
+    async getCurrentBranch() {
+        try {
+            const branches = await this.git.branch();
+            return branches.current;
+        }
+        catch (error) {
+            console.error(`[GitIntegrationManager] Error getting current branch:`, error);
+            return 'main';
+        }
     }
     // === Private Utility Methods ===
     inferChangeType(userRequest, files) {

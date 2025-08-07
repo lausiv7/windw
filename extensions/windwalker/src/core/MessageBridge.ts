@@ -19,7 +19,7 @@ export class MessageBridge {
     private buildManager: BuildManager;
     private llmService: LLMService;
     private codeGenerationService: CodeGenerationService;
-    private messageHandlers: Map<string, (message: WindWalkerMessage) => Promise<any>>;
+    protected messageHandlers: Map<string, (message: WindWalkerMessage) => Promise<any>>;
 
     constructor(context: vscode.ExtensionContext) {
         // Initialize managers

@@ -34,15 +34,6 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MessageBridge = void 0;
 const vscode = __importStar(require("vscode"));
@@ -91,382 +82,336 @@ class MessageBridge {
         this.messageHandlers.set('preview:changeUrl', this.handlePreviewChangeUrl.bind(this));
     }
     // Main message processing method
-    processMessage(message, webview) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                console.log(`[MessageBridge] Processing message: ${message.type}`, message);
-                // Add timestamp if not present
-                if (!message.timestamp) {
-                    message.timestamp = Date.now();
-                }
-                // Get handler for message type
-                const handler = this.messageHandlers.get(message.type);
-                if (handler) {
-                    const result = yield handler(message);
-                    // Send response back to webview
-                    yield webview.postMessage({
-                        type: `${message.type}:response`,
-                        data: result,
-                        requestId: message.requestId,
-                        timestamp: Date.now()
-                    });
-                    console.log(`[MessageBridge] Successfully processed: ${message.type}`);
-                }
-                else {
-                    throw new Error(`Unknown message type: ${message.type}`);
-                }
+    async processMessage(message, webview) {
+        try {
+            console.log(`[MessageBridge] Processing message: ${message.type}`, message);
+            // Add timestamp if not present
+            if (!message.timestamp) {
+                message.timestamp = Date.now();
             }
-            catch (error) {
-                console.error(`[MessageBridge] Error processing message:`, error);
-                const errorMessage = error instanceof Error ? error.message : String(error);
-                // Send error response
-                yield webview.postMessage({
-                    type: 'error',
-                    data: {
-                        originalType: message.type,
-                        error: errorMessage,
-                        requestId: message.requestId
-                    },
+            // Get handler for message type
+            const handler = this.messageHandlers.get(message.type);
+            if (handler) {
+                const result = await handler(message);
+                // Send response back to webview
+                await webview.postMessage({
+                    type: `${message.type}:response`,
+                    data: result,
+                    requestId: message.requestId,
                     timestamp: Date.now()
                 });
+                console.log(`[MessageBridge] Successfully processed: ${message.type}`);
             }
-        });
+            else {
+                throw new Error(`Unknown message type: ${message.type}`);
+            }
+        }
+        catch (error) {
+            console.error(`[MessageBridge] Error processing message:`, error);
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            // Send error response
+            await webview.postMessage({
+                type: 'error',
+                data: {
+                    originalType: message.type,
+                    error: errorMessage,
+                    requestId: message.requestId
+                },
+                timestamp: Date.now()
+            });
+        }
     }
     // File system handlers
-    handleFileRead(message) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { path } = message.data;
-            return yield this.fileManager.readFile(path);
-        });
+    async handleFileRead(message) {
+        const { path } = message.data;
+        return await this.fileManager.readFile(path);
     }
-    handleFileWrite(message) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { path, content } = message.data;
-            return yield this.fileManager.writeFile(path, content);
-        });
+    async handleFileWrite(message) {
+        const { path, content } = message.data;
+        return await this.fileManager.writeFile(path, content);
     }
-    handleFileCreate(message) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { path, content = '' } = message.data;
-            return yield this.fileManager.createFile(path, content);
-        });
+    async handleFileCreate(message) {
+        const { path, content = '' } = message.data;
+        return await this.fileManager.createFile(path, content);
     }
-    handleFileDelete(message) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { path } = message.data;
-            return yield this.fileManager.deleteFile(path);
-        });
+    async handleFileDelete(message) {
+        const { path } = message.data;
+        return await this.fileManager.deleteFile(path);
     }
-    handleFileList(message) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { path = '' } = message.data || {};
-            return yield this.fileManager.listFiles(path);
-        });
+    async handleFileList(message) {
+        const { path = '' } = message.data || {};
+        return await this.fileManager.listFiles(path);
     }
     // Build handlers
-    handleBuildStart(message) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { command = 'npm run dev' } = message.data || {};
-            return yield this.buildManager.startBuild(command);
-        });
+    async handleBuildStart(message) {
+        const { command = 'npm run dev' } = message.data || {};
+        return await this.buildManager.startBuild(command);
     }
-    handleBuildStop(message) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield this.buildManager.stopBuild();
-        });
+    async handleBuildStop(message) {
+        return await this.buildManager.stopBuild();
     }
-    handleBuildRestart(message) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield this.buildManager.restartBuild();
-        });
+    async handleBuildRestart(message) {
+        return await this.buildManager.restartBuild();
     }
     // Chat handlers
-    handleChatReady(message) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return {
-                type: 'system:info',
-                data: 'Welcome to WindWalker! I can help you create and modify files. Try saying: "Create a new React component called Button"'
-            };
-        });
+    async handleChatReady(message) {
+        return {
+            type: 'system:info',
+            data: 'Welcome to WindWalker! I can help you create and modify files. Try saying: "Create a new React component called Button"'
+        };
     }
-    handleChatMessage(message) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { content, context } = message.data;
-            try {
-                // Phase 4: Use LLM service for intelligent responses
-                if (this.llmService.isReady()) {
-                    const response = yield this.llmService.generateResponse({
-                        prompt: content,
-                        context: context || this.buildWorkspaceContext()
-                    });
-                    return {
-                        type: 'chat:response',
-                        data: {
-                            content: response.content,
-                            model: response.model,
-                            timestamp: response.timestamp
-                        }
-                    };
-                }
-                else {
-                    // Fallback to command parsing if AI is not available
-                    return yield this.parseAndExecuteCommand(content);
-                }
-            }
-            catch (error) {
-                console.error('[MessageBridge] Error in chat message handling:', error);
-                const errorMessage = error instanceof Error ? error.message : String(error);
-                // Try fallback command parsing
-                return yield this.parseAndExecuteCommand(content);
-            }
-        });
-    }
-    // Code generation handlers
-    handleCodeGenerate(message) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { prompt, language = 'javascript', context, filePath, selectedText } = message.data;
-            try {
-                if (this.codeGenerationService.isReady()) {
-                    const response = yield this.codeGenerationService.generateCode({
-                        prompt,
-                        language,
-                        context,
-                        filePath,
-                        selectedText
-                    });
-                    return {
-                        code: response.content,
-                        language,
-                        explanation: `Generated ${language} code using AI`,
-                        model: response.model,
-                        timestamp: response.timestamp
-                    };
-                }
-                else {
-                    // Fallback to simple code generation
-                    return {
-                        code: this.generateSimpleCode(prompt, language),
-                        language,
-                        explanation: `Generated ${language} code for: ${prompt}`
-                    };
-                }
-            }
-            catch (error) {
-                console.error('[MessageBridge] Error generating code:', error);
-                throw error;
-            }
-        });
-    }
-    handleCodeApply(message) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { code, path } = message.data;
-            return yield this.fileManager.writeFile(path, code);
-        });
-    }
-    handleCodeAnalyze(message) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { code, language } = message.data;
-            try {
-                if (this.codeGenerationService.isReady()) {
-                    return yield this.codeGenerationService.analyzeCode(code, language);
-                }
-                else {
-                    throw new Error('AI service not available for code analysis');
-                }
-            }
-            catch (error) {
-                console.error('[MessageBridge] Error analyzing code:', error);
-                throw error;
-            }
-        });
-    }
-    handleCodeRefactor(message) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { code, language, refactorType, target } = message.data;
-            try {
-                if (this.codeGenerationService.isReady()) {
-                    const response = yield this.codeGenerationService.refactorCode({
-                        code,
-                        language,
-                        refactorType,
-                        target
-                    });
-                    return {
-                        code: response.content,
-                        language,
-                        refactorType,
-                        explanation: `Refactored code using ${refactorType} strategy`,
-                        model: response.model,
-                        timestamp: response.timestamp
-                    };
-                }
-                else {
-                    throw new Error('AI service not available for code refactoring');
-                }
-            }
-            catch (error) {
-                console.error('[MessageBridge] Error refactoring code:', error);
-                throw error;
-            }
-        });
-    }
-    handleCodeFix(message) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { code, language, errorMessage } = message.data;
-            try {
-                if (this.codeGenerationService.isReady()) {
-                    const response = yield this.codeGenerationService.fixCode(code, language, errorMessage);
-                    return {
-                        code: response.content,
-                        language,
-                        explanation: 'Fixed code using AI analysis',
-                        model: response.model,
-                        timestamp: response.timestamp
-                    };
-                }
-                else {
-                    throw new Error('AI service not available for code fixing');
-                }
-            }
-            catch (error) {
-                console.error('[MessageBridge] Error fixing code:', error);
-                throw error;
-            }
-        });
-    }
-    handleCodeTest(message) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { code, language, testFramework } = message.data;
-            try {
-                if (this.codeGenerationService.isReady()) {
-                    const response = yield this.codeGenerationService.generateTests(code, language, testFramework);
-                    return {
-                        tests: response.content,
-                        language,
-                        framework: testFramework,
-                        explanation: 'Generated tests using AI',
-                        model: response.model,
-                        timestamp: response.timestamp
-                    };
-                }
-                else {
-                    throw new Error('AI service not available for test generation');
-                }
-            }
-            catch (error) {
-                console.error('[MessageBridge] Error generating tests:', error);
-                throw error;
-            }
-        });
-    }
-    handleCodeDocument(message) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { code, language } = message.data;
-            try {
-                if (this.codeGenerationService.isReady()) {
-                    const response = yield this.codeGenerationService.generateDocumentation(code, language);
-                    return {
-                        documentation: response.content,
-                        language,
-                        explanation: 'Generated documentation using AI',
-                        model: response.model,
-                        timestamp: response.timestamp
-                    };
-                }
-                else {
-                    throw new Error('AI service not available for documentation generation');
-                }
-            }
-            catch (error) {
-                console.error('[MessageBridge] Error generating documentation:', error);
-                throw error;
-            }
-        });
-    }
-    // Helper methods
-    parseAndExecuteCommand(command) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const lowerCommand = command.toLowerCase();
-            // Simple command parsing for Phase 2
-            if (lowerCommand.includes('create') && lowerCommand.includes('file')) {
-                return yield this.handleSimpleFileCreation(command);
-            }
-            if (lowerCommand.includes('list') && lowerCommand.includes('file')) {
-                return yield this.fileManager.listFiles('');
-            }
-            if (lowerCommand.includes('start') && lowerCommand.includes('server')) {
-                return yield this.buildManager.startBuild('npm run dev');
-            }
-            // Default response
-            return {
-                type: 'chat:response',
-                data: `I understand you want to: "${command}". Available commands: create file, list files, start server`
-            };
-        });
-    }
-    handleSimpleFileCreation(command) {
-        return __awaiter(this, void 0, void 0, function* () {
-            // Extract filename from command (simple regex)
-            const fileMatch = command.match(/create.*file.*["']([^"']+)["']/i) ||
-                command.match(/create.*["']([^"']+)["'].*file/i) ||
-                command.match(/file.*["']([^"']+)["']/i);
-            if (fileMatch) {
-                const filename = fileMatch[1];
-                const defaultContent = `// Generated file: ${filename}\n// Created by WindWalker\n\nexport default function() {\n  return <div>Hello from ${filename}!</div>;\n}\n`;
-                yield this.fileManager.createFile(`src/${filename}`, defaultContent);
+    async handleChatMessage(message) {
+        const { content, context } = message.data;
+        try {
+            // Phase 4: Use LLM service for intelligent responses
+            if (this.llmService.isReady()) {
+                const response = await this.llmService.generateResponse({
+                    prompt: content,
+                    context: context || this.buildWorkspaceContext()
+                });
                 return {
-                    type: 'file:created',
+                    type: 'chat:response',
                     data: {
-                        path: `src/${filename}`,
-                        message: `Successfully created ${filename}`
+                        content: response.content,
+                        model: response.model,
+                        timestamp: response.timestamp
                     }
                 };
             }
+            else {
+                // Fallback to command parsing if AI is not available
+                return await this.parseAndExecuteCommand(content);
+            }
+        }
+        catch (error) {
+            console.error('[MessageBridge] Error in chat message handling:', error);
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            // Try fallback command parsing
+            return await this.parseAndExecuteCommand(content);
+        }
+    }
+    // Code generation handlers
+    async handleCodeGenerate(message) {
+        const { prompt, language = 'javascript', context, filePath, selectedText } = message.data;
+        try {
+            if (this.codeGenerationService.isReady()) {
+                const response = await this.codeGenerationService.generateCode({
+                    prompt,
+                    language,
+                    context,
+                    filePath,
+                    selectedText
+                });
+                return {
+                    code: response.content,
+                    language,
+                    explanation: `Generated ${language} code using AI`,
+                    model: response.model,
+                    timestamp: response.timestamp
+                };
+            }
+            else {
+                // Fallback to simple code generation
+                return {
+                    code: this.generateSimpleCode(prompt, language),
+                    language,
+                    explanation: `Generated ${language} code for: ${prompt}`
+                };
+            }
+        }
+        catch (error) {
+            console.error('[MessageBridge] Error generating code:', error);
+            throw error;
+        }
+    }
+    async handleCodeApply(message) {
+        const { code, path } = message.data;
+        return await this.fileManager.writeFile(path, code);
+    }
+    async handleCodeAnalyze(message) {
+        const { code, language } = message.data;
+        try {
+            if (this.codeGenerationService.isReady()) {
+                return await this.codeGenerationService.analyzeCode(code, language);
+            }
+            else {
+                throw new Error('AI service not available for code analysis');
+            }
+        }
+        catch (error) {
+            console.error('[MessageBridge] Error analyzing code:', error);
+            throw error;
+        }
+    }
+    async handleCodeRefactor(message) {
+        const { code, language, refactorType, target } = message.data;
+        try {
+            if (this.codeGenerationService.isReady()) {
+                const response = await this.codeGenerationService.refactorCode({
+                    code,
+                    language,
+                    refactorType,
+                    target
+                });
+                return {
+                    code: response.content,
+                    language,
+                    refactorType,
+                    explanation: `Refactored code using ${refactorType} strategy`,
+                    model: response.model,
+                    timestamp: response.timestamp
+                };
+            }
+            else {
+                throw new Error('AI service not available for code refactoring');
+            }
+        }
+        catch (error) {
+            console.error('[MessageBridge] Error refactoring code:', error);
+            throw error;
+        }
+    }
+    async handleCodeFix(message) {
+        const { code, language, errorMessage } = message.data;
+        try {
+            if (this.codeGenerationService.isReady()) {
+                const response = await this.codeGenerationService.fixCode(code, language, errorMessage);
+                return {
+                    code: response.content,
+                    language,
+                    explanation: 'Fixed code using AI analysis',
+                    model: response.model,
+                    timestamp: response.timestamp
+                };
+            }
+            else {
+                throw new Error('AI service not available for code fixing');
+            }
+        }
+        catch (error) {
+            console.error('[MessageBridge] Error fixing code:', error);
+            throw error;
+        }
+    }
+    async handleCodeTest(message) {
+        const { code, language, testFramework } = message.data;
+        try {
+            if (this.codeGenerationService.isReady()) {
+                const response = await this.codeGenerationService.generateTests(code, language, testFramework);
+                return {
+                    tests: response.content,
+                    language,
+                    framework: testFramework,
+                    explanation: 'Generated tests using AI',
+                    model: response.model,
+                    timestamp: response.timestamp
+                };
+            }
+            else {
+                throw new Error('AI service not available for test generation');
+            }
+        }
+        catch (error) {
+            console.error('[MessageBridge] Error generating tests:', error);
+            throw error;
+        }
+    }
+    async handleCodeDocument(message) {
+        const { code, language } = message.data;
+        try {
+            if (this.codeGenerationService.isReady()) {
+                const response = await this.codeGenerationService.generateDocumentation(code, language);
+                return {
+                    documentation: response.content,
+                    language,
+                    explanation: 'Generated documentation using AI',
+                    model: response.model,
+                    timestamp: response.timestamp
+                };
+            }
+            else {
+                throw new Error('AI service not available for documentation generation');
+            }
+        }
+        catch (error) {
+            console.error('[MessageBridge] Error generating documentation:', error);
+            throw error;
+        }
+    }
+    // Helper methods
+    async parseAndExecuteCommand(command) {
+        const lowerCommand = command.toLowerCase();
+        // Simple command parsing for Phase 2
+        if (lowerCommand.includes('create') && lowerCommand.includes('file')) {
+            return await this.handleSimpleFileCreation(command);
+        }
+        if (lowerCommand.includes('list') && lowerCommand.includes('file')) {
+            return await this.fileManager.listFiles('');
+        }
+        if (lowerCommand.includes('start') && lowerCommand.includes('server')) {
+            return await this.buildManager.startBuild('npm run dev');
+        }
+        // Default response
+        return {
+            type: 'chat:response',
+            data: `I understand you want to: "${command}". Available commands: create file, list files, start server`
+        };
+    }
+    async handleSimpleFileCreation(command) {
+        // Extract filename from command (simple regex)
+        const fileMatch = command.match(/create.*file.*["']([^"']+)["']/i) ||
+            command.match(/create.*["']([^"']+)["'].*file/i) ||
+            command.match(/file.*["']([^"']+)["']/i);
+        if (fileMatch) {
+            const filename = fileMatch[1];
+            const defaultContent = `// Generated file: ${filename}\n// Created by WindWalker\n\nexport default function() {\n  return <div>Hello from ${filename}!</div>;\n}\n`;
+            await this.fileManager.createFile(`src/${filename}`, defaultContent);
             return {
-                type: 'error',
-                data: 'Could not parse filename from command. Try: "Create file MyComponent.tsx"'
+                type: 'file:created',
+                data: {
+                    path: `src/${filename}`,
+                    message: `Successfully created ${filename}`
+                }
             };
-        });
+        }
+        return {
+            type: 'error',
+            data: 'Could not parse filename from command. Try: "Create file MyComponent.tsx"'
+        };
     }
     // Preview handlers
-    handlePreviewReady(message) {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log('[MessageBridge] Preview WebView is ready');
-            return {
-                type: 'system:info',
-                data: 'Preview panel ready. Waiting for build server...'
-            };
-        });
+    async handlePreviewReady(message) {
+        console.log('[MessageBridge] Preview WebView is ready');
+        return {
+            type: 'system:info',
+            data: 'Preview panel ready. Waiting for build server...'
+        };
     }
-    handlePreviewReload(message) {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log('[MessageBridge] Preview reload requested');
-            // 실제로는 PreviewWebViewProvider에서 직접 처리하므로 확인 메시지만 반환
-            return {
-                type: 'preview:reloaded',
-                data: { success: true, timestamp: Date.now() }
-            };
-        });
+    async handlePreviewReload(message) {
+        console.log('[MessageBridge] Preview reload requested');
+        // 실제로는 PreviewWebViewProvider에서 직접 처리하므로 확인 메시지만 반환
+        return {
+            type: 'preview:reloaded',
+            data: { success: true, timestamp: Date.now() }
+        };
     }
-    handlePreviewChangeUrl(message) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { url } = message.data;
-            console.log(`[MessageBridge] Preview URL change requested: ${url}`);
-            // URL 유효성 검사
-            try {
-                new URL(url);
-                return {
-                    type: 'preview:urlChanged',
-                    data: { success: true, url, timestamp: Date.now() }
-                };
-            }
-            catch (error) {
-                return {
-                    type: 'error',
-                    data: `Invalid URL: ${url}`
-                };
-            }
-        });
+    async handlePreviewChangeUrl(message) {
+        const { url } = message.data;
+        console.log(`[MessageBridge] Preview URL change requested: ${url}`);
+        // URL 유효성 검사
+        try {
+            new URL(url);
+            return {
+                type: 'preview:urlChanged',
+                data: { success: true, url, timestamp: Date.now() }
+            };
+        }
+        catch (error) {
+            return {
+                type: 'error',
+                data: `Invalid URL: ${url}`
+            };
+        }
     }
     generateSimpleCode(prompt, language) {
         // Simple code generation for Phase 2

@@ -34,15 +34,6 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FileManager = void 0;
 const vscode = __importStar(require("vscode"));
@@ -60,249 +51,235 @@ class FileManager {
         }
     }
     // Read file content
-    readFile(relativePath) {
-        return __awaiter(this, void 0, void 0, function* () {
+    async readFile(relativePath) {
+        try {
+            const fullPath = this.getFullPath(relativePath);
+            const uri = vscode.Uri.file(fullPath);
+            // Check if file exists
             try {
-                const fullPath = this.getFullPath(relativePath);
-                const uri = vscode.Uri.file(fullPath);
-                // Check if file exists
-                try {
-                    yield vscode.workspace.fs.stat(uri);
-                }
-                catch (error) {
-                    throw new Error(`File not found: ${relativePath}`);
-                }
-                const content = yield vscode.workspace.fs.readFile(uri);
-                const textContent = Buffer.from(content).toString('utf8');
-                console.log(`[FileManager] Successfully read file: ${relativePath}`);
-                return {
-                    content: textContent,
-                    encoding: 'utf8'
-                };
+                await vscode.workspace.fs.stat(uri);
             }
             catch (error) {
-                console.error(`[FileManager] Error reading file ${relativePath}:`, error);
-                throw error;
+                throw new Error(`File not found: ${relativePath}`);
             }
-        });
+            const content = await vscode.workspace.fs.readFile(uri);
+            const textContent = Buffer.from(content).toString('utf8');
+            console.log(`[FileManager] Successfully read file: ${relativePath}`);
+            return {
+                content: textContent,
+                encoding: 'utf8'
+            };
+        }
+        catch (error) {
+            console.error(`[FileManager] Error reading file ${relativePath}:`, error);
+            throw error;
+        }
     }
     // Write file content
-    writeFile(relativePath, content) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const fullPath = this.getFullPath(relativePath);
-                const uri = vscode.Uri.file(fullPath);
-                // Ensure directory exists
-                const dirPath = path.dirname(fullPath);
-                yield this.ensureDirectoryExists(dirPath);
-                // Write file
-                const contentBuffer = Buffer.from(content, 'utf8');
-                yield vscode.workspace.fs.writeFile(uri, contentBuffer);
-                console.log(`[FileManager] Successfully wrote file: ${relativePath}`);
-                // Show success message to user
-                vscode.window.showInformationMessage(`File saved: ${path.basename(relativePath)}`);
-                return {
-                    success: true,
-                    path: relativePath,
-                    message: `File ${relativePath} saved successfully`
-                };
-            }
-            catch (error) {
-                console.error(`[FileManager] Error writing file ${relativePath}:`, error);
-                const errorMessage = error instanceof Error ? error.message : String(error);
-                return {
-                    success: false,
-                    path: relativePath,
-                    error: errorMessage
-                };
-            }
-        });
+    async writeFile(relativePath, content) {
+        try {
+            const fullPath = this.getFullPath(relativePath);
+            const uri = vscode.Uri.file(fullPath);
+            // Ensure directory exists
+            const dirPath = path.dirname(fullPath);
+            await this.ensureDirectoryExists(dirPath);
+            // Write file
+            const contentBuffer = Buffer.from(content, 'utf8');
+            await vscode.workspace.fs.writeFile(uri, contentBuffer);
+            console.log(`[FileManager] Successfully wrote file: ${relativePath}`);
+            // Show success message to user
+            vscode.window.showInformationMessage(`File saved: ${path.basename(relativePath)}`);
+            return {
+                success: true,
+                path: relativePath,
+                message: `File ${relativePath} saved successfully`
+            };
+        }
+        catch (error) {
+            console.error(`[FileManager] Error writing file ${relativePath}:`, error);
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            return {
+                success: false,
+                path: relativePath,
+                error: errorMessage
+            };
+        }
     }
     // Create new file
-    createFile(relativePath_1) {
-        return __awaiter(this, arguments, void 0, function* (relativePath, content = '') {
+    async createFile(relativePath, content = '') {
+        try {
+            const fullPath = this.getFullPath(relativePath);
+            const uri = vscode.Uri.file(fullPath);
+            // Check if file already exists
             try {
-                const fullPath = this.getFullPath(relativePath);
-                const uri = vscode.Uri.file(fullPath);
-                // Check if file already exists
-                try {
-                    yield vscode.workspace.fs.stat(uri);
-                    throw new Error(`File already exists: ${relativePath}`);
-                }
-                catch (error) {
-                    // File doesn't exist, which is what we want
-                    const errorMessage = error instanceof Error ? error.message : String(error);
-                    if (!errorMessage.includes('already exists')) {
-                        // This is expected - file should not exist
-                    }
-                }
-                // Create the file
-                const result = yield this.writeFile(relativePath, content);
-                if (result.success) {
-                    // Open the created file in editor
-                    const document = yield vscode.workspace.openTextDocument(uri);
-                    yield vscode.window.showTextDocument(document);
-                    console.log(`[FileManager] Successfully created and opened file: ${relativePath}`);
-                    return {
-                        success: true,
-                        path: relativePath,
-                        message: `File ${relativePath} created and opened successfully`
-                    };
-                }
-                return result;
+                await vscode.workspace.fs.stat(uri);
+                throw new Error(`File already exists: ${relativePath}`);
             }
             catch (error) {
-                console.error(`[FileManager] Error creating file ${relativePath}:`, error);
+                // File doesn't exist, which is what we want
                 const errorMessage = error instanceof Error ? error.message : String(error);
-                return {
-                    success: false,
-                    path: relativePath,
-                    error: errorMessage
-                };
+                if (!errorMessage.includes('already exists')) {
+                    // This is expected - file should not exist
+                }
             }
-        });
-    }
-    // Delete file
-    deleteFile(relativePath) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const fullPath = this.getFullPath(relativePath);
-                const uri = vscode.Uri.file(fullPath);
-                // Check if file exists
-                try {
-                    yield vscode.workspace.fs.stat(uri);
-                }
-                catch (error) {
-                    throw new Error(`File not found: ${relativePath}`);
-                }
-                // Confirm deletion with user
-                const choice = yield vscode.window.showWarningMessage(`Are you sure you want to delete ${path.basename(relativePath)}?`, 'Delete', 'Cancel');
-                if (choice !== 'Delete') {
-                    return {
-                        success: false,
-                        path: relativePath,
-                        message: 'Deletion cancelled by user'
-                    };
-                }
-                // Delete file
-                yield vscode.workspace.fs.delete(uri);
-                console.log(`[FileManager] Successfully deleted file: ${relativePath}`);
-                vscode.window.showInformationMessage(`File deleted: ${path.basename(relativePath)}`);
+            // Create the file
+            const result = await this.writeFile(relativePath, content);
+            if (result.success) {
+                // Open the created file in editor
+                const document = await vscode.workspace.openTextDocument(uri);
+                await vscode.window.showTextDocument(document);
+                console.log(`[FileManager] Successfully created and opened file: ${relativePath}`);
                 return {
                     success: true,
                     path: relativePath,
-                    message: `File ${relativePath} deleted successfully`
+                    message: `File ${relativePath} created and opened successfully`
                 };
             }
+            return result;
+        }
+        catch (error) {
+            console.error(`[FileManager] Error creating file ${relativePath}:`, error);
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            return {
+                success: false,
+                path: relativePath,
+                error: errorMessage
+            };
+        }
+    }
+    // Delete file
+    async deleteFile(relativePath) {
+        try {
+            const fullPath = this.getFullPath(relativePath);
+            const uri = vscode.Uri.file(fullPath);
+            // Check if file exists
+            try {
+                await vscode.workspace.fs.stat(uri);
+            }
             catch (error) {
-                console.error(`[FileManager] Error deleting file ${relativePath}:`, error);
-                const errorMessage = error instanceof Error ? error.message : String(error);
+                throw new Error(`File not found: ${relativePath}`);
+            }
+            // Confirm deletion with user
+            const choice = await vscode.window.showWarningMessage(`Are you sure you want to delete ${path.basename(relativePath)}?`, 'Delete', 'Cancel');
+            if (choice !== 'Delete') {
                 return {
                     success: false,
                     path: relativePath,
-                    error: errorMessage
+                    message: 'Deletion cancelled by user'
                 };
             }
-        });
+            // Delete file
+            await vscode.workspace.fs.delete(uri);
+            console.log(`[FileManager] Successfully deleted file: ${relativePath}`);
+            vscode.window.showInformationMessage(`File deleted: ${path.basename(relativePath)}`);
+            return {
+                success: true,
+                path: relativePath,
+                message: `File ${relativePath} deleted successfully`
+            };
+        }
+        catch (error) {
+            console.error(`[FileManager] Error deleting file ${relativePath}:`, error);
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            return {
+                success: false,
+                path: relativePath,
+                error: errorMessage
+            };
+        }
     }
     // List files in directory
-    listFiles() {
-        return __awaiter(this, arguments, void 0, function* (relativePath = '') {
-            try {
-                const fullPath = this.getFullPath(relativePath);
-                const uri = vscode.Uri.file(fullPath);
-                const entries = yield vscode.workspace.fs.readDirectory(uri);
-                const fileInfos = [];
-                for (const [name, type] of entries) {
-                    const entryPath = path.join(fullPath, name);
-                    const entryUri = vscode.Uri.file(entryPath);
-                    try {
-                        const stat = yield vscode.workspace.fs.stat(entryUri);
-                        fileInfos.push({
-                            name,
-                            path: path.join(relativePath, name),
-                            type: type === vscode.FileType.Directory ? 'directory' : 'file',
-                            size: stat.size,
-                            modified: stat.mtime
-                        });
-                    }
-                    catch (error) {
-                        console.warn(`[FileManager] Could not stat ${name}:`, error);
-                    }
-                }
-                // Sort: directories first, then files, both alphabetically
-                fileInfos.sort((a, b) => {
-                    if (a.type === b.type) {
-                        return a.name.localeCompare(b.name);
-                    }
-                    return a.type === 'directory' ? -1 : 1;
-                });
-                console.log(`[FileManager] Listed ${fileInfos.length} items in: ${relativePath || 'workspace root'}`);
-                return fileInfos;
-            }
-            catch (error) {
-                console.error(`[FileManager] Error listing files in ${relativePath}:`, error);
-                throw error;
-            }
-        });
-    }
-    // Create directory if it doesn't exist
-    ensureDirectoryExists(fullPath) {
-        return __awaiter(this, void 0, void 0, function* () {
+    async listFiles(relativePath = '') {
+        try {
+            const fullPath = this.getFullPath(relativePath);
             const uri = vscode.Uri.file(fullPath);
-            try {
-                const stat = yield vscode.workspace.fs.stat(uri);
-                if (stat.type !== vscode.FileType.Directory) {
-                    throw new Error(`Path exists but is not a directory: ${fullPath}`);
-                }
-            }
-            catch (error) {
-                const errorMessage = error instanceof Error ? error.message : String(error);
-                if (errorMessage.includes('not found')) {
-                    // Directory doesn't exist, create it
-                    yield vscode.workspace.fs.createDirectory(uri);
-                    console.log(`[FileManager] Created directory: ${fullPath}`);
-                }
-                else {
-                    throw error;
-                }
-            }
-        });
-    }
-    // Get workspace relative files (commonly used files)
-    getWorkspaceFiles() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const commonPaths = [
-                'package.json',
-                'src',
-                'src/app',
-                'src/components',
-                'src/lib',
-                'public',
-                'README.md',
-                'next.config.ts',
-                'tailwind.config.ts'
-            ];
-            const existingFiles = [];
-            for (const relativePath of commonPaths) {
+            const entries = await vscode.workspace.fs.readDirectory(uri);
+            const fileInfos = [];
+            for (const [name, type] of entries) {
+                const entryPath = path.join(fullPath, name);
+                const entryUri = vscode.Uri.file(entryPath);
                 try {
-                    const fullPath = this.getFullPath(relativePath);
-                    const uri = vscode.Uri.file(fullPath);
-                    const stat = yield vscode.workspace.fs.stat(uri);
-                    existingFiles.push({
-                        name: path.basename(relativePath),
-                        path: relativePath,
-                        type: stat.type === vscode.FileType.Directory ? 'directory' : 'file',
+                    const stat = await vscode.workspace.fs.stat(entryUri);
+                    fileInfos.push({
+                        name,
+                        path: path.join(relativePath, name),
+                        type: type === vscode.FileType.Directory ? 'directory' : 'file',
                         size: stat.size,
                         modified: stat.mtime
                     });
                 }
                 catch (error) {
-                    // File doesn't exist, skip
+                    console.warn(`[FileManager] Could not stat ${name}:`, error);
                 }
             }
-            return existingFiles;
-        });
+            // Sort: directories first, then files, both alphabetically
+            fileInfos.sort((a, b) => {
+                if (a.type === b.type) {
+                    return a.name.localeCompare(b.name);
+                }
+                return a.type === 'directory' ? -1 : 1;
+            });
+            console.log(`[FileManager] Listed ${fileInfos.length} items in: ${relativePath || 'workspace root'}`);
+            return fileInfos;
+        }
+        catch (error) {
+            console.error(`[FileManager] Error listing files in ${relativePath}:`, error);
+            throw error;
+        }
+    }
+    // Create directory if it doesn't exist
+    async ensureDirectoryExists(fullPath) {
+        const uri = vscode.Uri.file(fullPath);
+        try {
+            const stat = await vscode.workspace.fs.stat(uri);
+            if (stat.type !== vscode.FileType.Directory) {
+                throw new Error(`Path exists but is not a directory: ${fullPath}`);
+            }
+        }
+        catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            if (errorMessage.includes('not found')) {
+                // Directory doesn't exist, create it
+                await vscode.workspace.fs.createDirectory(uri);
+                console.log(`[FileManager] Created directory: ${fullPath}`);
+            }
+            else {
+                throw error;
+            }
+        }
+    }
+    // Get workspace relative files (commonly used files)
+    async getWorkspaceFiles() {
+        const commonPaths = [
+            'package.json',
+            'src',
+            'src/app',
+            'src/components',
+            'src/lib',
+            'public',
+            'README.md',
+            'next.config.ts',
+            'tailwind.config.ts'
+        ];
+        const existingFiles = [];
+        for (const relativePath of commonPaths) {
+            try {
+                const fullPath = this.getFullPath(relativePath);
+                const uri = vscode.Uri.file(fullPath);
+                const stat = await vscode.workspace.fs.stat(uri);
+                existingFiles.push({
+                    name: path.basename(relativePath),
+                    path: relativePath,
+                    type: stat.type === vscode.FileType.Directory ? 'directory' : 'file',
+                    size: stat.size,
+                    modified: stat.mtime
+                });
+            }
+            catch (error) {
+                // File doesn't exist, skip
+            }
+        }
+        return existingFiles;
     }
     // Helper method to get full path
     getFullPath(relativePath) {
@@ -320,18 +297,16 @@ class FileManager {
         return this.workspaceRoot;
     }
     // Check if file exists
-    fileExists(relativePath) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const fullPath = this.getFullPath(relativePath);
-                const uri = vscode.Uri.file(fullPath);
-                yield vscode.workspace.fs.stat(uri);
-                return true;
-            }
-            catch (error) {
-                return false;
-            }
-        });
+    async fileExists(relativePath) {
+        try {
+            const fullPath = this.getFullPath(relativePath);
+            const uri = vscode.Uri.file(fullPath);
+            await vscode.workspace.fs.stat(uri);
+            return true;
+        }
+        catch (error) {
+            return false;
+        }
     }
 }
 exports.FileManager = FileManager;

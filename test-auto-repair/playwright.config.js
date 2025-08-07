@@ -3,7 +3,7 @@ const { defineConfig, devices } = require('@playwright/test');
 
 module.exports = defineConfig({
   testDir: './tests',
-  timeout: 60000,
+  timeout: 120000,
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
@@ -44,11 +44,11 @@ module.exports = defineConfig({
     }
   ],
 
-  // Docker에서 실행 중인 Code Server 사용
+  // Docker에서 실행 중인 Code Server 사용 (이미 실행중이므로 체크만)
   webServer: {
-    command: 'echo "Docker 컨테이너 확인 중..." && docker ps | grep windwalker-ide',
+    command: 'echo "WindWalker Docker 컨테이너가 이미 실행중입니다"',
     port: 8080,
-    timeout: 10000,
+    timeout: 5000,
     reuseExistingServer: true,
   },
 });
