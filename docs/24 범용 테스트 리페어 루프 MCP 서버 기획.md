@@ -1,6 +1,49 @@
 
 
 
+# 범용 테스트 리페어 루프 MCP 서버 기획
+
+## 📁 테스트 디렉토리 구조 (WindWalker 프로젝트)
+
+**중요**: WindWalker 프로젝트의 모든 테스트 관련 파일은 다음 구조로 관리됩니다:
+
+```
+test-auto-repair/project/windw/
+├── tests/                          # Playwright E2E 테스트 파일
+│   └── windwalker-phase1.spec.js   # Phase 1 확장 테스트
+├── test-results/                   # 테스트 실행 결과
+│   ├── screenshots/                # 테스트 스크린샷
+│   └── .playwright-artifacts-*/    # 비디오 및 기타 아티팩트
+├── test-execution-summary.md       # 테스트 실행 요약 리포트
+└── README.md                       # 프로젝트별 테스트 가이드
+```
+
+### 테스트 실행 명령어
+```bash
+# WindWalker 프로젝트 E2E 테스트 실행
+cd /mnt/d/git/2025/windwalker/windw/test-auto-repair
+npx playwright test project/windw/tests/windwalker-phase1.spec.js
+
+# 설정 파일: playwright.config.js
+# testDir: './project/windw/tests' 로 설정됨
+```
+
+### 범용 MCP화를 위한 프로젝트 구조
+```
+test-auto-repair/
+├── project/
+│   ├── windw/           # WindWalker 프로젝트
+│   ├── project-b/       # 다른 프로젝트 예시
+│   └── project-c/       # 또 다른 프로젝트
+├── common/              # 공통 유틸리티
+├── schemas/             # 프로젝트별 테스트 스키마
+└── mcp-server/          # MCP 서버 코어
+```
+
+이 구조를 통해 다른 프로젝트들도 동일한 테스트 자동화 패턴을 재사용할 수 있습니다.
+
+---
+
 WindWalker 프로젝트의 테스트 리페어 루프 시스템을 범용 MCP 서버로 발전시키는 것은 개발자 생태계에 큰 혁신을 가져올 수 있습니다.
 🎯 핵심 인사이트 및 컨설팅
 1. 시장 기회 분석

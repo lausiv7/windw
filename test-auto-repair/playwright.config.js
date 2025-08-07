@@ -2,7 +2,7 @@
 const { defineConfig, devices } = require('@playwright/test');
 
 module.exports = defineConfig({
-  testDir: './tests',
+  testDir: './project/windw/tests',
   timeout: 120000,
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
