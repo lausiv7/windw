@@ -70,12 +70,29 @@ npx playwright test project/windw/tests/windwalker-phase1.spec.js --headed
 3. 서비스 의존성 순환 참조 점검
 4. Chromium 실행 권한 확인
 
+## 📊 대시보드 및 리포트
+
+### 최신 결과 (Latest)
+- **HTML 대시보드**: [dashboard/latest-phase1-dashboard.html](./dashboard/latest-phase1-dashboard.html)
+- **JSON 테스트 데이터**: [reports/latest-test-data.json](./reports/latest-test-data.json)
+- **실행 요약**: [test-execution-summary.md](./test-execution-summary.md)
+
+### 누적 히스토리
+- **대시보드 히스토리**: [history/dashboards/](./history/dashboards/) - 타임스탬프별 누적
+- **리포트 히스토리**: [history/reports/](./history/reports/) - JSON/MD 데이터 누적  
+- **히스토리 인덱스**: [history/index.json](./history/index.json) - 전체 진행 상황 추적
+
+### GitHub 직접 링크
+- **메인 대시보드**: https://github.com/lausiv7/windw/blob/main/test-auto-repair/project/windw/dashboard/latest-phase1-dashboard.html
+- **최신 테스트 데이터**: https://github.com/lausiv7/windw/blob/main/test-auto-repair/project/windw/reports/latest-test-data.json
+
 ## 🔗 관련 문서
 
 - [테스트 실행 요약](./test-execution-summary.md)
-- [Phase 1 완료 상태](/PHASE1_COMPLETION_STATUS.md)
-- [WindWalker 기술 문서](../../docs/)
-- [확장 소스코드](../../extensions/windwalker/)
+- [Phase 1 완료 상태](../../../PHASE1_COMPLETION_STATUS.md)
+- [대시보드 관리 가이드](../../../docs/25%20대시보드%20및%20리포트%20관리%20가이드.md)
+- [WindWalker 기술 문서](../../../docs/)
+- [확장 소스코드](../../../extensions/windwalker/)
 
 ---
 **범용 MCP화 준비**: 이 테스트 구조는 다른 프로젝트에서 재사용 가능하도록 설계되었습니다.
